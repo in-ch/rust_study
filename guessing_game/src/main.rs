@@ -1,10 +1,15 @@
+extern crate rand;
+
 use std::io;
+use rand::Rng;
 
 fn main() {
     println!("Guess the number!");
 
-    println!("Please input your guess.");
+    let secret_number = rand::thread_rng().gen_range(1, 101);
+    println!("The secret number is {}", secret_number);
 
+    println!("Please input your guess.");
     let mut guess = String::new();
 
     io::stdin().read_line(&mut guess)
@@ -37,3 +42,20 @@ fn main() {
 // .expect는 프로그램을 종료하고 메시지를 출력한다.. -> 없어도 컴파일은 되지만 경고가 나타난다. 
 
 // placeholder를 이용한 값 출력 => println!("You guessed : {}", guess);
+
+// ------------------------------------------------------------------
+
+// 비밀번호 생성하기 
+
+// rand 크레이트를 의존성으로 추가한 후 cargo build를 하면 된다. (cargo update하면 자동으로 의존성들을 업그레이드해준다. -> 마이너 버전 기준으로, 예를 들어 3버전 받고 싶다면 마니어가 적어도 3이 되어야 한다.)
+// rand 크레이트는 libc에 의존하기 떄문에 libc도 같이 다운받는다. 
+
+// extern crate rand;을 통해 우리가 외부에 의존하는 크레이트가 있음을 알린다. -> use rand으로도 표기할 수도 있고 이제 rand::를 앞에 붙여 rand내의 모든 것을 호출할 수 있다. 
+// use rand:Rng를 추가함한다. -> Rng는 정수 생성기가 구현한 구현한 메소들을 정의한 trait이며 해당 메소드들을 이용하기 위해서는 반드시 스코프 내에 있어야 한다. 
+
+// rand::thread_rng 함수는 OS가 시드(seed)를 정하고 현재 스레드에서만 사용되는 특별한 정수생성기를 돌려준다. 
+// 다음에는 get_range 메소드를 호출한다. -> rng trait에 정의되어 있으므로 use rand::Rng문을 통해서 스코프를 가져올 수 있다. 
+
+// cargo doc --open 명령어를 통해 로컬에서 해당 프로젝트의 모든 의존 패키지들이 제공하는 문서들을 빌드해서 브라우저에 표시해 준다. 
+
+
