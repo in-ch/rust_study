@@ -2,6 +2,7 @@ extern crate rand;
 
 use std::io;
 use rand::Rng;
+use std::cmp::Ordering;
 
 fn main() {
     println!("Guess the number!");
@@ -16,6 +17,12 @@ fn main() {
         .expect("Failed to read line");
 
     println!("You guessed: {}", guess);
+
+    match guess.cmp(&secret_number) {
+        Ordering::Less    => println!("Too small!"),
+        Ordering::Greater => println!("Too big!"),
+        Ordering::Equal   => println!("You win!"),
+    }
 }
 
 // 사용자 입력을 받고 결과값을 표시하기 위해서는 io(input/output) 라이브러리를 스코프로 가져와야한다. io 라이브러리는 std라고 불리는 표준 라이브러리에 있다.
@@ -59,3 +66,12 @@ fn main() {
 // cargo doc --open 명령어를 통해 로컬에서 해당 프로젝트의 모든 의존 패키지들이 제공하는 문서들을 빌드해서 브라우저에 표시해 준다. 
 
 
+
+// ------------------------------------------------------------------
+
+// 비밀번호와 추리값 비교 
+
+// std::cmp::Ordering을 스코프로 가져오는 또다른 use를 사용한다. 
+// Ordering은 Result와 같은 열거형이지만 Ordering의 값은 Less, Greater, Equal이다. 
+
+// cmp 메소드는 두 값을 비교하며 비교 가능한 모든 것들에 대해 호출할 수 있다. 
