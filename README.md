@@ -205,3 +205,66 @@ fn main(){
 </code>
 
 여기서 다른 언어와 다른 점은 만약 배열의 크기가 넘은 index을 호출할 경우 Rust는 프로그램이 오류와 함께 종료될 때 패닉한다. -> 메모리 접근을 허용하고 계속 진행하는 대신 즉시 종료한다. -> 실행 중에 에러가 나오는 것이다. 
+
+# 3.3 함수 동작 원리 
+> fn 키워드를 이용해서 함수를 만들 수 있다. 
+> Rust는 뱀 형태로 변수나 함수 이름의 규칙으로 사용한다. (ex some_function ) 
+
+```
+fn main() {
+    println!("Hello world");
+}
+
+fn another_function() {
+    println!("Another function.");
+}
+```
+
+- 함수의 매개변수 
+> 함수는 함수 고유한 부분인 특별한 변수 매개변수를 갖는 형식으로 선언될 수 있다.
+
+```
+fn main() {
+    another_function(5);
+}
+
+fn another_function(x: i32) {
+    println!("The value of x is: {}", x);
+}
+```
+위의 예제는 x 매개변수를 선언하고 형식은 i32로 한 것이다. 
+
+- 함수의 표현식
+
+```
+fn main() {
+    let x = 5;
+
+    let y = {
+        let x = 3;
+        x + 1
+    };
+
+    println!("The value of y is: {}", y);
+}
+```
+여기서 y안에 x를 선언했는데, x + 1은 뒤에 세미클론이 없다는 게 특징이다. 
+
+- 반환 값을 갖는 함수 
+> 함수는 그들을 호출한 코드에 값을 반환할 수 있다. 
+> 그들의 타입은 화살표 (->) 뒤에 선언해야 한다. 
+
+```
+fn five() -> i32 {
+    5
+}
+
+fn main() {
+    let x = five();
+
+    println!("The value of x is: {}", x);
+}
+```
+여기서 five는 단지 5를 적어놨는데 Rust에서는 이게 함수로 허용된다. 
+근데 5뒤에 ;를 찍으면 콘솔에서 에러를 반환한다. 
+
