@@ -268,10 +268,128 @@ fn main() {
 여기서 five는 단지 5를 적어놨는데 Rust에서는 이게 함수로 허용된다. 
 근데 5뒤에 ;를 찍으면 콘솔에서 에러를 반환한다. 
 
-# 3.4 
+# 3.4 주석 
+
 > 러스트에서도 주석을 사용할 수 있다. 
 
 <code>
 // Hello, world. 
 </code>
+
+# 3.5 제어문 
+> 여기서는 if표현식과 반복문에 대해서 공부해보자. 
+
+- if 표현식 
+사용법 
+
+```
+fn main() {
+    let numver = 3;
+    if number < 5 {
+        println!("condition was true");
+    } else {
+        println!("condition was false");
+    }
+}
+```
+일반적인 사용법이랑 같은데 다른 점은 ()가 빠져있다. 
+그리고 이번 코드의 조건은 반드시 bool이어야 한다. 
+
+```
+fn main() {
+    let number = 6;
+
+    if number % 4 == 0 {
+        println!("number is divisible by 4");
+    } else if number % 3 == 0 {
+        println!("number is divisible by 3");
+    } else if number % 2 == 0 {
+        println!("number is divisible by 2");
+    } else {
+        println!("number is not divisible by 4, 3, or 2");
+    }
+}
+```
+
+- let 구문에서 if문 사용 가능하다. 
+
+```
+fn main() {
+    let condition = true;
+    let number = if condition {
+        5
+    } else {
+        6
+    };
+
+    println!("The value of number is: {}", number);
+}
+```
+이렇게 하면 if 식에서 산추된 값이 bound되게 된다. 
+단, if식에 속한 각 return 값은 
+
+- loop 문 
+> loop keyword는 Rust에게 그만두라고 명시하여 알려주기 전까지 코드 블럭을 반복 수행한다. 
+> CTRL + C 를 통해 종료 시킬 수 있다. 
+```
+fn main() {
+    loop {
+        println!("again!");
+    }
+}
+```
+
+- while 문 
+> while 문을 통해 조건이 참일때까지만 실행하는 반복문을 만들 수 있다. 
+
+```
+fn main() {
+    let mut number = 3;
+
+    while number != 0 {
+        println!("{}!", number);
+
+        number = number - 1;
+    }
+
+    println!("LIFTOFF!!!");
+}
+```
+
+- for문 + while
+
+```
+fn main() {
+    let a = [10, 20, 30, 40, 50];
+    let mut index = 0;
+
+    while index < 5 {
+        println!("the value is: {}", a[index]);
+
+        index = index + 1;
+    }
+}
+```
+
+근데 안정성을 높이기 위해서 다음과 같이 할 수 있다. 
+```
+fn main() {
+    let a = [10, 20, 30, 40, 50];
+
+    for element in a.iter() {
+        println!("the value is: {}", element);
+    }
+}
+```
+혹은 range을 역순하는 rev메소드를 사용해서 다음과 같이 할 수 있다.
+
+```
+fn main() {
+    for number in (1..4).rev() {
+        println!("{}!", number);
+    }
+    println!("LIFTOFF!!!");
+}
+```
+
 
