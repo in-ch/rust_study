@@ -10,11 +10,9 @@ https://rinthel.github.io/rust-lang-book-ko/
 - mut를 사용해서 불변성 변수를 가변성 변수로 변경할 수 있다.
 
 <code>
-fn main() {
     println!("The value of x is: {}", x);
     x = 6;
     println!("The value of x is: {}", x);
-}
 </code>
 
 ### 변수와 상수 간의 차이점들
@@ -37,14 +35,12 @@ fn main() {
 다음 예제는 x에 처음 5를 bind를 하고 shadow하여 원본에 1를 더해서 6더하고 이런 식으로 반복한다.
 
 <code>
-fn main() {
     let x = 5;
     let x = x + 1;
     let x = x + 2;
 
     println!("The value of x is: {}", x);
 
-}
 </code>
 
 그런데 만약에 let를 사용하지 않고 mut로 선언하게 되면 컴파일 시 에러를 얻게 된다.
@@ -96,10 +92,8 @@ Byte (u8 only)	    b'A'
 
 ex)
 <code>
-fn main() {
     let x = 2.0; // f64
     let y:f32 = 3.0; // f32
-}
 </code>
 f32타입은 1배수의 정밀도인 부동소수점이고, f64는 2배수의 정밀도인 부동소수점이다. 
 
@@ -108,7 +102,6 @@ let을 사용하면 rust가 알아서 산출된 값을 변수로 bound한다.
 
 ex)
 <code>
-fn main() {
     // addition
     let sum = 5 + 10;
 
@@ -123,7 +116,6 @@ fn main() {
 
     // remainder
     let remainder = 43 % 5;
-}
 </code>
 
 - Boolean 타입 
@@ -152,32 +144,26 @@ fn main() {
 
 ex)
 <code>
-fn main(){
     let tup: (i32, f64, u8) = (500, 6.4, 1);
-}
 </code>
 
 튜플은 단일 요소를 위한 복합계로 고려되었기에 전체가 bind된다. 개별적으로 끄내기 위해서는 구조분해를 해야한다. 
 
 ex)
 <code>
-fn main() {
     let tup = (500, 6.4, 1);
     let (x, y, z) = tup;
     println!("The value of y is : {}", y);
-}
 </code>
 
 구조분해에 추가로 뒤에 마침표(.) 뒤에 접근하기 원하는 값의 색인을 넣는 것을 통해 튜플의 요소에 직접적으로 접근할 수 있다.
 
 ex)
 <code>
-fn main() {
     let x: (i32, f64, u8) = (500, 6.4, 1);
     let five_hundred = x.0;
     let six_point_four = x.1;
     let one = x.2;
-}
 </code>
 
 뭔 배열에서 x[0]쓰는 것과 비슷하냐 ㅋㅋㅋㅋ 
@@ -189,21 +175,17 @@ fn main() {
 
 ex)
 <code>
-fn main() {
-    let a = [1, 2, 3, 4, 5];
-}
+let a = [1, 2, 3, 4, 5];
 </code>
 
 - 배열의 요소에 접근하기 
 
 일반적인 방법과 같다. 
 <code>
-fn main(){
     let a = [1, 2, 3, 4, 5];
 
     let first = a[0];
     let second = a[1];
-}
 </code>
 
 여기서 다른 언어와 다른 점은 만약 배열의 크기가 넘은 index을 호출할 경우 Rust는 프로그램이 오류와 함께 종료될 때 패닉한다. -> 메모리 접근을 허용하고 계속 진행하는 대신 즉시 종료한다. -> 실행 중에 에러가 나오는 것이다. 
