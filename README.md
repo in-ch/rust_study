@@ -616,3 +616,88 @@ let slice = &a[1..3];
 이런 식을 타입 스크립트처럼 param과 return의 형을 정의해줄 수 있다.
 
 소유권, 빌림, 그리고 슬라이스의 개념은 러스트 프로그램의 메모리 안정성을 컴파일 타임에 보장하는 것이다. 러스트 언어는 다른 시스템 프로그래밍 언어와 같이 메모리 사용에 제어권을 주지만, 데이터의 소유자가 스코프 밖으로 벗아났을 때 소유자가 자동적으로 데이터를 버리도록 하는 것은 이러한 제어를 위해 추가적인 코드 작성이나 디버깅을 하지 않아도 된다는 것이다.
+
+# 5. 연관된 데이터들을 구조체로 다루기
+> Struct은 사용자들이 연관된 여러 값들을 묶어서 의미있는 데이터 단위를 정의할 수 있게 된다. (튜플과 비교된다.)
+> 메소드와 구조체 데이터의 동작과 관련된 연관함수의 정의 방법에 대해 알아보도록 한다. 
+
+## 5.1 구조체를 정의하고 초기화하기
+> 구조체는 튜플과 비슷하다. 그러나 튜플과는 다르게 각 구성요소들은 명명할 수 있어 값이 의미하는 바를 명확하게 인지할 수 있다. (튜플보다 유연하다.)
+```
+struct User {
+    username: String,
+    email: String,
+    sign: u64,
+    active: bool,
+}
+```
+
+> 구조체를 사용하려면 인스턴스(instance)를 생성해야 한다. key, value를 사용한다.
+```
+let user1 = User {
+    email: String::from("someone@example.com"),
+    username: String::from("someusername123"),
+    active: true,
+    sign_in_count: 1,
+};
+```
+
+> 구조체는 .을 사용해서 불러오면 되고 =를 사용해서 값을 변경할 수 있다. (반드시 mutable이여야 한다.)
+```
+let mut user1 = User {
+    email: String::from("someone@example.com"),
+    username: String::from("someusername123"),
+    active: true,
+    sign_in_count: 1,
+};
+
+user1.email = String::from("anotheremail@example.com");
+```
+
+> 함수로 구조체를 만들 수 있다. 또한 축약법도 가능하다. 
+```
+fn build_user(email: String, username: String) -> User {
+    User {
+        email: email,
+        username: username,
+        active: true,
+        sign_in_count: 1,
+    }
+}
+
+fn build_user(email: String, username: String) -> User {
+    User {
+        email,
+        username,
+        active: true,
+        sign_in_count: 1,
+    }
+}
+```
+
+- 구조체 갱신법을 이용하여 기존 구조체 인스턴스로 새 구조체 인스턴스 생성하기 
+```
+let user2 = User {
+    email: String::from("another@example.com"),
+    username: String::from("anotherusername567"),
+    active: user1.active,
+    sign_in_count: user1.sign_in_count,
+};
+
+let user2 = User {
+    email: String::from("another@example.com"),
+    username: String::from("anotherusername567"),
+    ..user1
+};
+```
+
+- 이름이 없고 필드마다 타입은 다르게 정의 가능한 튜플 구조체 
+```
+struct Color(i32, i32, i32);
+struct Point(i32, i32, i32);
+
+let black = Color(0, 0, 0);
+let origin = Point(0, 0, 0);
+```
+
+
