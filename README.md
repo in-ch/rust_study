@@ -9,11 +9,11 @@ https://rinthel.github.io/rust-lang-book-ko/
 
 - mut를 사용해서 불변성 변수를 가변성 변수로 변경할 수 있다.
 
-<code>
+```
     println!("The value of x is: {}", x);
     x = 6;
     println!("The value of x is: {}", x);
-</code>
+```
 
 ### 변수와 상수 간의 차이점들
 
@@ -23,9 +23,9 @@ https://rinthel.github.io/rust-lang-book-ko/
 2. 상수는 전체 영역을 포함하여 어떤 영역에서도 선언될 수 있다. -> 코드의 많은 부분에서 사용될 필요가 있는 값을 다루는데 유용하다.
 3. 상수는 오직 상수 표현식만 설정될 수 있지, 함수 호출의 결과값이나 그 외의 실행 시간에 결정되는 값이 설정될 수 없다.
    ex)
-   <code>
+```
    const MAX_POINTS: u32 = 100_000;
-   </code>
+```
 
 ### Shadowing
 
@@ -34,14 +34,13 @@ https://rinthel.github.io/rust-lang-book-ko/
 
 다음 예제는 x에 처음 5를 bind를 하고 shadow하여 원본에 1를 더해서 6더하고 이런 식으로 반복한다.
 
-<code>
+```
     let x = 5;
     let x = x + 1;
     let x = x + 2;
 
     println!("The value of x is: {}", x);
-
-</code>
+```
 
 그런데 만약에 let를 사용하지 않고 mut로 선언하게 되면 컴파일 시 에러를 얻게 된다.
 
@@ -91,17 +90,17 @@ Byte (u8 only) b'A'
   32bit와 64bit의 크기를 가진 f32와 f64가 있다.
 
 ex)
-<code>
+```
 let x = 2.0; // f64
 let y:f32 = 3.0; // f32
-</code>
+```
 f32타입은 1배수의 정밀도인 부동소수점이고, f64는 2배수의 정밀도인 부동소수점이다.
 
 - 수학적 연산들
   let을 사용하면 rust가 알아서 산출된 값을 변수로 bound한다.
 
 ex)
-<code>
+```
 // addition
 let sum = 5 + 10;
 
@@ -116,22 +115,21 @@ let sum = 5 + 10;
 
     // remainder
     let remainder = 43 % 5;
-
-</code>
+```
 
 - Boolean 타입
 
 일반적인 다른 언어와 사용법이 같다. bool 키워드를 사용한다.
 
 ex)
-<code>
+```
 fn main() {
 let t = true;
 
     let f: bool = false; // with explicit type annotation
 
 }
-</code>
+```
 
 - 문자 타입
 
@@ -144,28 +142,28 @@ let t = true;
 괄호 안에 콤마로 구분되는 값들의 목록을 작성하여 튜플을 만든다. -> 다 달라도 된다.
 
 ex)
-<code>
+```
 let tup: (i32, f64, u8) = (500, 6.4, 1);
-</code>
+```
 
 튜플은 단일 요소를 위한 복합계로 고려되었기에 전체가 bind된다. 개별적으로 끄내기 위해서는 구조분해를 해야한다.
 
 ex)
-<code>
+```
 let tup = (500, 6.4, 1);
 let (x, y, z) = tup;
 println!("The value of y is : {}", y);
-</code>
+```
 
 구조분해에 추가로 뒤에 마침표(.) 뒤에 접근하기 원하는 값의 색인을 넣는 것을 통해 튜플의 요소에 직접적으로 접근할 수 있다.
 
 ex)
-<code>
+```
 let x: (i32, f64, u8) = (500, 6.4, 1);
 let five_hundred = x.0;
 let six_point_four = x.1;
 let one = x.2;
-</code>
+```
 
 뭔 배열에서 x[0]쓰는 것과 비슷하냐 ㅋㅋㅋㅋ
 당연히 튜플의 첫 번째 색인은 0이다.
@@ -175,20 +173,19 @@ let one = x.2;
 튜플과 다르게 배열의 모든 요소는 모두 같은 타입이여야 한다. 또한 고정된 길이를 갖게 되며 한번 선언되면 크기는 커지거나 작아지지 않는다. -> 가변적이게 사용하고 싶다면 8장에서 배우는 벡터를 사용해야 한다.
 
 ex)
-<code>
+```
 let a = [1, 2, 3, 4, 5];
-</code>
+```
 
 - 배열의 요소에 접근하기
 
 일반적인 방법과 같다.
-<code>
+```
 let a = [1, 2, 3, 4, 5];
 
     let first = a[0];
     let second = a[1];
-
-</code>
+```
 
 여기서 다른 언어와 다른 점은 만약 배열의 크기가 넘은 index을 호출할 경우 Rust는 프로그램이 오류와 함께 종료될 때 패닉한다. -> 메모리 접근을 허용하고 계속 진행하는 대신 즉시 종료한다. -> 실행 중에 에러가 나오는 것이다.
 
@@ -262,9 +259,9 @@ fn main() {
 
 > 러스트에서도 주석을 사용할 수 있다.
 
-<code>
+```
 // Hello, world. 
-</code>
+```
 
 # 3.5 제어문
 
@@ -457,10 +454,10 @@ String이 요구한 메모리를 운영체제에게 반납하는 자연스러운
 
 다음과 같은 코드가 있다고 보자.
 
-<code>
+```
 let s1 = String::from("hello");
 let s2 = s1;
-</code>
+```
 
 이렇게하면 s1는 무효화되기 때문에 얇은 복사와 비슷한 개념인 이동(move)된다. 즉, s1의 값은 s2로 옮겨지는 것이다.
 만약 s1이 무효화되지 않았다면 drop됐을 때 s1, s2가 동시에 해제되기 때문에 double free라는 오류가 발생하여 메모리 안정성 버그가 생긴다.
@@ -470,21 +467,21 @@ let s2 = s1;
 
 만약 string의 스택 데이터 뿐 아니라 힙 데이터를 깊이 복사하기를 원한다면, clone이라는 공용 메소드를 사용해야 한다.
 
-<code>
+```
 let s1 = String::from("hello");
 let s2 = s1.clone();
 
 println!("s1 = {}, s2 = {}", s1, s2);
-</code>
+```
 
 ### 스택에만 있는 데이터 복사: 복사
 
-<code>
+```
 let x = 5;
 let y = x;
 
 println!("x = {}, y = {}", x, y);
-</code>
+```
 
 - Copy가 가능한 정수형 타입들
   1. u32와 같은 모든 정수형 타입들
@@ -494,7 +491,7 @@ println!("x = {}, y = {}", x, y);
 
 ## 4.2
 
-<code>
+```
 fn main() {
     let s1 = String::from("hello");
     let (s2, len) = calculate_length(s1);
@@ -505,12 +502,12 @@ fn calculate_length(s: String) -> (String, usize) {
 let length = s.len(); // len()함수는 문자열의 길이를 반환합니다.
 (s, length)
 }
-</code>
+```
 
 여기서 String을 호출하는 함수 쪽으로 소우권을 줌으로써 calculate_length를 호출한 이후에도 여전히 String을 이용할 수 있다.
 그런데 이 방법은 추천되지 않으므로 소유권을 넘기는 대신 개체에 대한 참조자(reference)를 인자로 사용되는 calculate_length 함수를 정의하고 이용할 수 있다.
 
-<code>
+```
 fn main() {
     let s1 = String::from("hello");
     let len = calculate_length(&s1);
@@ -519,7 +516,7 @@ fn main() {
 fn calculate_length(s: &String) -> usize {
 s.len()
 }
-</code>
+```
 
 & 키워드를 사용하는 것이다.
 이렇게함으로써 어떤 값을 소유권을 넘기지 않고 참조할 수 있도록 해준다. -> 참조자가 가리키는 값은 참조자가 스코프 밖으로 벗어났을 때도 메모리가 반납되지 않는다. -> 소우권을 되돌려주기 위해 값을 다시 반환할 필요도 없다.
@@ -529,7 +526,7 @@ s.len()
 함수의 파라미터로 참조자를 만드는 것을 빌림이라고 한다.
 
 - 빌린 값을 바꾸려고 하면 오류가 리턴된다.
-  <code>
+  ```
   fn main() {
   let s = String::from("hello");
   change(&s);
@@ -537,7 +534,7 @@ s.len()
   fn change(some_string: &String) {
   some_string.push_str(", world");
   }
-  </code>
+  ```
   이건 오류가 리턴된다.
 
 ### 가변 참조자(Mutable References)
@@ -545,7 +542,7 @@ s.len()
 - mut를 사용하는 것이다.
 - 단, 특정 스코프 내에서 가변 참조자는 딱 하나만 만들 수 있다.
 
-<code>
+```
 fn main() {
     let mut s = String::from("hello");
     change(&mut s);
@@ -554,7 +551,7 @@ fn main() {
 fn change(some_string: &mut String) {
 some_string.push_str(", world");
 }
-</code>
+```
 
 ### 댕글러 참조자(Dangling References)
 
@@ -699,5 +696,3 @@ struct Point(i32, i32, i32);
 let black = Color(0, 0, 0);
 let origin = Point(0, 0, 0);
 ```
-
-
