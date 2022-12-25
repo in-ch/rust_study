@@ -696,3 +696,81 @@ struct Point(i32, i32, i32);
 let black = Color(0, 0, 0);
 let origin = Point(0, 0, 0);
 ```
+
+## 5.2 구조체를 이용한 예제 프로그램
+> 사각형의 넓이를 계산하는 프로그램을 작성한다. 
+
+rectangles라는 사각형의 넓이를 계산하는 프로그램이다.
+```
+fn main() {
+    let length1 = 50;
+    let width1 = 30;
+
+    println!(
+        "The area of the rectangle is {} square pixels.",
+        area(length1, width1)
+    );
+}
+
+fn area(length: u32, width: u32) -> u32 {
+    length * width;
+}
+```
+
+- 튜플을 이용한 리펙토링 
+> 길이와 너비를 함께 묶는다면 더 읽기 쉽고 관리하기도 쉬울 것이다.
+
+```
+fn main() {
+    let rect1 = (50, 30);
+
+    println!(
+        "The area of the rectangle is {} square pixels.",
+        area(rect1)        
+    );
+}
+
+fn area(dimensions: (u32, u32)) -> u32 {
+    dimensions.0 * dimensions.1
+}
+```
+이제 하나의 인자만 넘기면 된다. length가 튜플 인덱스 0이고 width가 튜플 인덱스 1이라는 점을 기억해야 한다.
+
+- 구조체를 이용한 리팩토링: 의미를 더 추가하기 
+> 데이터에 이름표를 붙여서 의미를 부여하기 위해 구조체를 이용할 수 있다. 
+
+```
+struct Rectangle {
+    length: u32,
+    length: u32,
+}
+
+fn main() {
+    let rect1 = Rectangle { length: 50, width: 30 };
+
+    println!(
+        "The area of the rectangle is {} square pixels",
+        area(&rect1)
+    );
+}
+
+fn area(rectangle: &Rectangle) -> u32 {
+    rectangle.length * rectangle.width
+}
+```
+
+- 파생 트레잇(derived trait)으로 유용한 기능 추가하기
+> 디버깅하는 동안 구조체 내의 모든 값을 보기 위해서 Rectangle의 인스턴스를 출력할 수 있다면 도움이 될 것 같다.
+```
+#[derive(Debug)]
+struct Rectangle {
+    length: u32,
+    width: u32,
+}
+
+fn main() {
+    let rect1 = Rectangle { length: 50, width: 30 };
+
+    println!("rect1 is {:?}", rect1);
+}
+```
