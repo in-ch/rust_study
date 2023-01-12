@@ -774,3 +774,70 @@ fn main() {
     println!("rect1 is {:?}", rect1);
 }
 ```
+
+## 5.3 메소드
+> 메소드는 함수와 유사하다. fn 키워드와 이름을 가지고 선언되고, 파라미터와 반환값을 가지고 있으며, 다른 어딘가로부터 호출되었을때 실행될 코드를 담고 있다.
+> 다만 메소드는 함수와는 달리 구조체의 내용 안에 정의되며 첫번째 파라미터가 언제나 self인데, 이는 메소드가 호출되고 있는 구조체의 인스턴스를 나타낸다.
+
+예제
+```
+#[derive(Debug)]
+struct Rectangle {
+    length: u32,
+    width: u32,
+}
+
+impl Rectangle {
+    fn area(&self) -> u32 {
+        self.length * self.width
+    }
+}
+
+fn main() {
+    let rect1 = Rectangle { length: 50, width: 30 };
+
+    println!(
+        "The area of the rectangle is {} square pixels.",
+        rect1.area()
+    );
+}
+```
+
+> Rectangle의 내용 안에 함수를 정의하기 위해서는 ,impl(구현: implementation) 블록을 시작한다. 그 다음 area함수를 impl 중괄호로 옮기고 시그니처 및 본체 내의 모든 곳에 있는 파라미터를 self로 변경시킨다. 
+
+예제 2 
+```
+impl Rectangle {
+    fn area(&self) -> u32 {
+        self.length * self.width
+    }
+
+    fn can_hold(&self, other: &Rectangle) -> bool {
+        self.length > other.length && self.width > other.width
+    }
+}
+
+fn main() {
+    let rect1 = Rectangle { length: 50, width: 30 };
+    let rect2 = Rectangle { length: 40, width: 10 };
+    let rect3 = Rectangle { length: 45, width: 60 };
+
+    println!("Can rect1 hold rect2? {}", rect1.can_hold(&rect2));
+    println!("Can rect1 hold rect3? {}", rect1.can_hold(&rect3));
+}
+```
+
+### 연관 함수
+> impl 블록의 유용한 기능은 self 파라미터를 갖지 않는 함수도 impl 내에 정의하는 것이 허용된다는 것이다. 이걸 연관 함수(associated functions)라고 부른다. 
+> 연관 함수는 새로운 구조체의 인스턴스를 반환해주는 생성자로서 자주 사용된다. 
+```
+impl Rectangle {
+    fn square(size: u32) -> Rectangle {
+        Rectangle { length: size, width: size }
+    }
+}
+```
+> 이 연관 함수를 호출하기 위해서는 <code>let sq = Rectangle::square(3);</code> 처럼, 구조체 이름과 함께 :: 문법을 이용한다. 
+
+### 정리 
+> 구조체는 커스텀 타입을 만들 수 있게 해준다. 구조체를 이용함으로써, 연관된 데이터의 조각들을 서로 연결하여 유지할 수 있으며 각 데이터 조각에 이름을 붙여 코드를 더 명확하게 만들어 줄 수 있다. 
