@@ -841,3 +841,42 @@ impl Rectangle {
 
 ### 정리 
 > 구조체는 커스텀 타입을 만들 수 있게 해준다. 구조체를 이용함으로써, 연관된 데이터의 조각들을 서로 연결하여 유지할 수 있으며 각 데이터 조각에 이름을 붙여 코드를 더 명확하게 만들어 줄 수 있다. 
+
+
+# 열거형(enum) 정의학
+> 
+```
+enum IpAddrKind {
+    V4,
+    V6,
+}
+```
+이렇게 하면 <code>IpAddrKind</code>는 우리의 코드 어디에서나 쓸 수 있는 데이터 타입이 되었다.
+
+> 이걸 활용해서 인스턴스도 만들 수 있다.
+
+```
+let four = IpAddrKind::V4;
+let six = IpAddrKind::V6;
+
+fn route(ip_type: IpAddrKind) { }
+
+route(IpAddrKind::V4);
+route(IpAddrKind::V6);
+```
+
+> 다음과 같이 처리할 수도 있다.
+```
+enum IpAddr {
+    V4(u8, u8, u8, u8),
+    V6(String),
+}
+
+let home = IpAddr::V4(127, 0, 0, 1);
+
+let loopback = IpAddr::V6(String::from("::1"));
+```
+
+### Option 열거형과 Null 값 보다 좋은 점들.
+> Option 타입은 많이 사용되는데, 값이 있거나 없을 수도 있는 아주 흔한 상황을 나타내기 때문이다.
+
