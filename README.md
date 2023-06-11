@@ -9,7 +9,8 @@ https://rinthel.github.io/rust-lang-book-ko/
 
 - mut를 사용해서 불변성 변수를 가변성 변수로 변경할 수 있다.
 
-```
+```rust
+    let x = 5;
     println!("The value of x is: {}", x);
     x = 6;
     println!("The value of x is: {}", x);
@@ -23,7 +24,7 @@ https://rinthel.github.io/rust-lang-book-ko/
 2. 상수는 전체 영역을 포함하여 어떤 영역에서도 선언될 수 있다. -> 코드의 많은 부분에서 사용될 필요가 있는 값을 다루는데 유용하다.
 3. 상수는 오직 상수 표현식만 설정될 수 있지, 함수 호출의 결과값이나 그 외의 실행 시간에 결정되는 값이 설정될 수 없다.
    ex)
-```
+```rust
    const MAX_POINTS: u32 = 100_000;
 ```
 
