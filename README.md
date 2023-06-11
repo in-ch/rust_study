@@ -1,7 +1,11 @@
 https://rinthel.github.io/rust-lang-book-ko/
 
-# 3.1 변수와 가변성
+[3.1 변수와 가변성](#-3.1-변수와-가변성) 
 
+# 3.1 변수와 가변성
+<details>
+    <summary>자세히 보기</summary>
+    
 ### 변수와 가변성
 
 > Rust에서 기본 변수는 불변성이다. 변수가 불변성인 경우, 일단 값이 bound되면 해당 값을 변경할 수 없다.
@@ -48,6 +52,8 @@ https://rinthel.github.io/rust-lang-book-ko/
 ### mut과 let의 차이점
 
 즉, 변수를 지속적으로 변하게 싶으면 let을 쓰고 변수를 새로 할당하고 싶으면 mut 키워드를 쓰면 될 것 같다.
+    
+</details>
 
 # 3.2
 
