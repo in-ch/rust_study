@@ -11,14 +11,30 @@ https://rinthel.github.io/rust-lang-book-ko/
 > Rust에서 기본 변수는 불변성이다. 변수가 불변성인 경우, 일단 값이 bound되면 해당 값을 변경할 수 없다.
 > 만약에 불변성으로 선언한 것의 값을 변경하고자 하는 시도를 하면 컴파일 타임의 에러를 얻게 된다.
 
-- mut를 사용해서 불변성 변수를 가변성 변수로 변경할 수 있다.
-
 ```rust
     let x = 5;
     println!("The value of x is: {}", x);
     x = 6;
     println!("The value of x is: {}", x);
 ```
+이렇게 하고 <code>cargo run</code>을 실행시켜보면 다음과 같은 에러를 볼 수 있다.
+![스크린샷 2023-06-11 오후 10 05 32](https://github.com/in-ch/rust_study/assets/49556566/edd552db-b141-41e0-ae98-7bf4e9f042fd)
+> 에러가 나타나는 이유는 <code>불변성 변수에 재할당</code>이 문제가 된 것이다. 따라서 불변성 변수 <code>x</code>에 두 번째로 값을 할당했기 떄문이다. 
+  우리가 이전에 불변성으로 선언한 것의 값을 변경하고자 하는 시도를 하면 컴파일 타임의 에러를 얻게 되고 이로 인해 버그가 발생할 수 있기 때문에 중요하다. 
+
+### mut를 활용해서 가변성 추가하기
+
+> <code>mut</code> 접두어를 통해 가변성 변수를 선언할 수 있다. 이는 변수의 값이 변경을 허용하는 것에 추가로 향후 코드를 보는 사람에게 코드의 다른 부분에서 해당 변수의 값을 변경할 것이라는 의도를 주지시켜준다. 
+```rust
+    fn main() {
+        let mut x = 5;
+        println!("The value of x is: {}", x);
+        x = 6;
+        println!("The value of x is: {}", x);
+    }
+```
+![스크린샷 2023-06-11 오후 10 19 53](https://github.com/in-ch/rust_study/assets/49556566/451a6e93-50f2-4e49-99e9-07c228802ea8)
+
 
 ### 변수와 상수 간의 차이점들
 
@@ -47,12 +63,25 @@ https://rinthel.github.io/rust-lang-book-ko/
     println!("The value of x is: {}", x);
 ```
 
-그런데 만약에 let를 사용하지 않고 mut로 선언하게 되면 컴파일 시 에러를 얻게 된다.
+그런데 만약에 <code>let</code>를 사용하지 않고 <code>mut</code>로 선언하게 되면 컴파일 시 에러를 얻게 된다.
 
 ### mut과 let의 차이점
 
-즉, 변수를 지속적으로 변하게 싶으면 let을 쓰고 변수를 새로 할당하고 싶으면 mut 키워드를 쓰면 될 것 같다.
+- <code>mut</code>와 <code>shadowing</code>의 차이점은 <code>let</code> 키워드를 다시 사용하여 효과적으로 새 변수를 선언하고, 값의 유형을 변경할 수 있으면서도 동일 이름을 사용할 수 있다는 점이다. 
+- 변수를 지속적으로 변하게 싶으면 <code>mut</code>을 쓰고 변수를 새로 할당하고 싶으면 <code>let</code> 키워드를 쓰면 된다.
     
+```rust
+let spaces = "   ";
+let spaces = spaces.len();
+```
+- 이게 가능한 이유는 첫 변수가 <b>문자열 유형</b>이고 두 번째 변수도 첫 번째 것과 동일한 이름을 가진 새롭게 정의된 <b>숫자 유형</b>의 변수이기 때문이다. 즉, 두번째 번수가 첫번째 변수를 덮어쓰기 한 것이다.
+
+```rust
+let mut spaces = "   ";
+spaces = spaces.len();
+```
+- 이건 문제가 되는데 두번째 줄에서 문자열이기 때문에 컴파일-시의 에러가 발생하게 된다. 
+
 </details>
 
 # 3.2

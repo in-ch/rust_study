@@ -1,0 +1,1 @@
+/Users/seonginch/Desktop/dashboard/rust_study/universal_programming_concept/target/debug/universal_programming_concept: /Users/seonginch/Desktop/dashboard/rust_study/universal_programming_concept/src/main.rs
