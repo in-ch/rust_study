@@ -81,7 +81,7 @@ let spaces = spaces.len();
 let mut spaces = "   ";
 spaces = spaces.len();
 ```
-- 이건 문제가 되는데 두번째 줄에서 문자열이기 때문에 컴파일-시의 에러가 발생하게 된다. 
+- 이건 문제가 되는데 <code>spaces</code>가 첫번째 줄에서 문자형이고 두번째 줄에서 숫자형이기 때문에 컴파일-시의 에러가 발생하게 된다. 
 
 </details>
 
