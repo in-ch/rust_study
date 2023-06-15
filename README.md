@@ -1,6 +1,7 @@
 https://rinthel.github.io/rust-lang-book-ko/
 
 [3.1 변수와 가변성](#-3.1-변수와-가변성) 
+
 [3.2 데이터 타입들](#32-데이터-타입들)
 
 # 3.1 변수와 가변성
@@ -86,8 +87,10 @@ spaces = spaces.len();
 </details>
 
 # 3.2 데이터 타입들
+
 <details>
     <summary>자세히 보기</summary>
+    
 > 기억해야할 것은 Rust에는 변수가 어떤 형태의 데이터인지 명시해줘야한다. -> 타입은 고정적이다. (컴파일 시 반드시 모든 변수의 타입이 정해져 있어야 한다.)
 ```rust
 let guess: u32 = "42".parse().expect("Not a number!");
