@@ -326,17 +326,26 @@ fn main() {
 
 # 3.4 주석
 
-> 러스트에서도 주석을 사용할 수 있다.
+<details>
+    <summary>자세히 보기</summary>
+
+    > 러스트에서도 주석을 사용할 수 있다.
 
 ```rust
 // Hello, world. 
 ```
 
+</details>
+
+
 # 3.5 제어문
+
+<details>
+    <summary>자세히 보기</summary>
 
 > 여기서는 if표현식과 반복문에 대해서 공부해보자.
 
-- if 표현식
+### if 표현식
   사용법
 
 ```rust
@@ -369,7 +378,7 @@ fn main() {
 }
 ```
 
-- let 구문에서 if문 사용 가능하다.
+### let 구문에서 if문 사용 가능하다.
 
 ```rust
 fn main() {
@@ -384,12 +393,31 @@ fn main() {
 }
 ```
 
-이렇게 하면 if 식에서 산추된 값이 bound되게 된다.
-단, if식에 속한 각 return 값은
+> 이렇게 하면 if 식에서 산추된 값이 bound되게 된다.
+  단, if식에 속한 각 return 값은 반드시 같은 타입이여야 한다. 
 
-- loop 문
+- 만약에 다음과 같이 한다면 오류가 나오게 된다. 
+
+```rust
+fn main() {
+    let condition = true;
+
+    let number = if condition {
+        5
+    } else {
+        "six"
+    };
+
+    println!("The value of number is: {}", number);
+}
+```
+
+![스크린샷 2023-06-16 오후 11 45 07](https://github.com/in-ch/rust_study/assets/49556566/d8731b72-63bf-45a9-95e9-b0133fa254a0)
+
+### loop 문
   > loop keyword는 Rust에게 그만두라고 명시하여 알려주기 전까지 코드 블럭을 반복 수행한다.
   > CTRL + C 를 통해 종료 시킬 수 있다.
+  > 혹은 <code>break</code> keyword를 위치시켜 프로그램이 언제 루프를 멈춰야 하는지 알려줄 수 있다.
 
 ```rust
 fn main() {
@@ -399,7 +427,7 @@ fn main() {
 }
 ```
 
-- while 문
+### while 문
   > while 문을 통해 조건이 참일때까지만 실행하는 반복문을 만들 수 있다.
 
 ```rust
@@ -416,7 +444,7 @@ fn main() {
 }
 ```
 
-- for문 + while
+### for문 + while
 
 ```rust
 fn main() {
@@ -431,7 +459,7 @@ fn main() {
 }
 ```
 
-근데 안정성을 높이기 위해서 다음과 같이 할 수 있다.
+> 근데 안정성을 높이기 위해서 다음과 같이 할 수 있다.
 
 ```rust
 fn main() {
@@ -443,7 +471,7 @@ fn main() {
 }
 ```
 
-혹은 range을 역순하는 rev메소드를 사용해서 다음과 같이 할 수 있다.
+> 혹은 range을 역순하는 rev메소드를 사용해서 다음과 같이 할 수 있다.
 
 ```rust
 fn main() {
@@ -453,6 +481,9 @@ fn main() {
     println!("LIFTOFF!!!");
 }
 ```
+
+</details>
+
 
 # 4 소유권 이해하기
 
