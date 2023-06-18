@@ -12,7 +12,9 @@ https://rinthel.github.io/rust-lang-book-ko/
 
 [4.1 스택과 힙 이해하기](#41-스택과-힙-이해하기)
 
-# 3.1 변수와 가변성
+[4.2 참조자와 빌림](#42-참조자references와-빌림borrowing)
+
+## 3.1 변수와 가변성
 <details>
     <summary>자세히 보기</summary>
     
@@ -94,7 +96,7 @@ spaces = spaces.len();
 
 </details>
 
-# 3.2 데이터 타입들
+## 3.2 데이터 타입들
 
 <details>
     <summary>자세히 보기</summary>
@@ -251,7 +253,7 @@ let months = ["January", "February", "March", "April", "May", "June", "July",
 
 </details>
 
-# 3.3 함수 동작 원리
+## 3.3 함수 동작 원리
 
 <details>
     <summary>자세히 보기</summary>
@@ -330,7 +332,7 @@ fn main() {
 
 </details>
 
-# 3.4 주석
+## 3.4 주석
 
 <details>
     <summary>자세히 보기</summary>
@@ -344,7 +346,7 @@ fn main() {
 </details>
 
 
-# 3.5 제어문
+## 3.5 제어문
 
 <details>
     <summary>자세히 보기</summary>
@@ -671,57 +673,57 @@ fn takes_and_gives_back(a_string: String) -> String { // a_string이 스코프
 
 
 
-## 4.2
+## 4.2 참조자(References)와 빌림(Borrowing) 
+
+<details>
+    <summary>자세히 보기</summary>
+
+- 위의 예제에서 마지막에 등장한 튜플을 이용하는 이슈는 <code>String</code>을 호출하는 함수 쪽으로 반환함으로써 <code>calculate_length</code>를 호출한 이후에도 여전히 <code>String</code>을 이용할 수 있도록 하는 것인데, 그 이유는 <code>String</code>이 <code>calculate_length</code> 안쪽으로 이동되었기 떄문이다. 
+
+- 또 다른 예제 
 
 ```rust
 fn main() {
     let s1 = String::from("hello");
-    let (s2, len) = calculate_length(s1);
-    println!("The length of '{}' is {}.", s2, len);
-}
 
-fn calculate_length(s: String) -> (String, usize) {
-let length = s.len(); // len()함수는 문자열의 길이를 반환합니다.
-(s, length)
-}
-```
-
-여기서 String을 호출하는 함수 쪽으로 소우권을 줌으로써 calculate_length를 호출한 이후에도 여전히 String을 이용할 수 있다.
-그런데 이 방법은 추천되지 않으므로 소유권을 넘기는 대신 개체에 대한 참조자(reference)를 인자로 사용되는 calculate_length 함수를 정의하고 이용할 수 있다.
-
-```rust
-fn main() {
-    let s1 = String::from("hello");
     let len = calculate_length(&s1);
+
     println!("The length of '{}' is {}.", s1, len);
 }
+
 fn calculate_length(s: &String) -> usize {
-s.len()
+    s.len()
 }
 ```
 
-& 키워드를 사용하는 것이다.
-이렇게함으로써 어떤 값을 소유권을 넘기지 않고 참조할 수 있도록 해준다. -> 참조자가 가리키는 값은 참조자가 스코프 밖으로 벗어났을 때도 메모리가 반납되지 않는다. -> 소우권을 되돌려주기 위해 값을 다시 반환할 필요도 없다.
+- 변수 선언부와 함수 반환값에 있던 튜플 코드가 모두 없어졌다. 
+- <code>calculate_length</code> 함수에 <code>&s1</code>를 넘기고, 함수의 정의 부분에는 <code>String</code>이 아니라 <code>&String</code>을 이용했다는 점을 주목
 
-### 빌림
+- 이 엠퍼센드(&) 기호가 <code>참조자</code>이며, 이는 어떤 값을 소유권을 넘기지 않고 참조할 수 있도록 해준다. 
 
-함수의 파라미터로 참조자를 만드는 것을 빌림이라고 한다.
+> <code>&s1</code>문법은 우리가 <code>s1</code>의 값을 참조하지만 소유하지 않는 참조자를 생성하였으므로, 
+   소유권을 갖고 있지 않기 떄문에, 이 참조자가 가리키는 값은 참조자가 스코프 밖으로 벗어났을 때도 메모리가 반납되지 않는다.
 
-- 빌린 값을 바꾸려고 하면 오류가 리턴된다.
-  ```rust
-  fn main() {
-  let s = String::from("hello");
-  change(&s);
-  }
-  fn change(some_string: &String) {
-  some_string.push_str(", world");
-  }
-  ```
-  이건 오류가 리턴된다.
+### 참조자를 통해 빌린 값을 고치려고 한다면 무슨 일이 일어날까? 
+
+- 예제 
+```rust
+fn main() {
+    let s = String::from("hello");
+
+    change(&s);
+}
+
+fn change(some_string: &String) {
+    some_string.push_str(", world");
+}
+```
+> 이렇게 하면 오류가 발생한다. 왜냐하면 변수가 기본적으로 불변인 것처럼, 참조자도 불변이기 때문이다. 
 
 ### 가변 참조자(Mutable References)
 
-- mut를 사용하는 것이다.
+> 이를 위해 <code>Mutable References</code>를 사용해야 한다. 
+
 - 단, 특정 스코프 내에서 가변 참조자는 딱 하나만 만들 수 있다.
 
 ```rust
@@ -735,15 +737,52 @@ some_string.push_str(", world");
 }
 ```
 
+- 또한 불변 참조자와 가변 참조자를 동시에 사용할 수 없다. 
+```rust
+let mut s = String::from("hello");
+
+let r1 = &s; // 문제 없음
+let r2 = &s; // 문제 없음
+let r3 = &mut s; // 큰 문제
+```
+
 ### 댕글러 참조자(Dangling References)
 
-댕글러 포인터란 어떤 메모리를 가리키는 포인터를 보존하는 동안, 그 메모리를 해제함으로써 다른 개체에게 사용하도록 줘버렸을 지도 모를 메모리를 참조하고 있는 포인터를 말한다. 단, rust는 참조자들이 댕글링 참조자가 되지 않도록 보장해준다. -> 어떠한 데이터의 참조자를 만들었다면, 컴파일러는 그 참조자가 스코프 밖으로 벗어나기 전에는 데이터가 스코프 밖으로 벗어나지 않을 것임을 확인해 줄 것이다.
+- <code>댕글러 포인터</code>란 어떤 메모리를 가리키는 포인터를 보존하는 동안, 그 메모리를 해제함으로써 다른 개체에게 사용하도록 줘버렸을 지도 모를 메모리를 참조하고 있는 포인터를 말한다. 
+- 단, <code>rust</code>는 참조자들이 댕글링 참조자가 되지 않도록 보장해준다. -> 어떠한 데이터의 참조자를 만들었다면, 컴파일러는 그 참조자가 스코프 밖으로 벗어나기 전에는 데이터가 스코프 밖으로 벗어나지 않을 것임을 확인해 줄 것이다.
+
+- 댕글링 참조자를 만드는 시도
+```rust
+fn main() {
+    let reference_to_nothing = dangle();
+}
+
+fn dangle() -> &String {
+    let s = String::from("hello");
+
+    &s
+}
+```
+
+> 위의 예제는 오류가 발생한다. 왜나하면 <code>&s</code>는 스코프를 벗어났을 때 자동으로 메모리에서 할당 해제되기 떄문이다. 
+  다음과 같이 해야 한다. 
+```rust
+fn no_dangle() -> String {
+    let s = String::from("hello");
+
+    s
+}
+```
 
 ### 참조자의 규칙
 1. 어떠한 경우이든 간, 둘 중 하나만 가질 수 있다.
     - 하나의 가변 참조자
     - 임의 개수의 불변 참조자들
 2. 참조자는 항상 유효해야만 한다.
+
+
+</details>
+
 
 ## 4.3 
 
