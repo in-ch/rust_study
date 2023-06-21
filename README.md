@@ -16,6 +16,8 @@ https://rinthel.github.io/rust-lang-book-ko/
 
 [4.3 슬라이스](#43-슬라이드slices)
 
+[5.1 구조체를 정의하고 초기화하기](#51-구조체를-정의하고-초기화하기)
+
 ## 3.1 변수와 가변성
 <details>
     <summary>자세히 보기</summary>
@@ -837,7 +839,14 @@ let slice = &a[0..4];
 > <code>튜플</code>과 비교된다.
 
 ## 5.1 구조체를 정의하고 초기화하기
-> 구조체는 튜플과 비슷하다. 그러나 튜플과는 다르게 각 구성요소들은 명명할 수 있어 값이 의미하는 바를 명확하게 인지할 수 있다. (튜플보다 유연하다.)
+
+<details>
+    <summary>자세히 보기</summary>
+
+- <code>구조체(Struct)</code>은 튜플과 비슷하다. 튜플과 비슷하게 구조체의 구성요소들은 각자 다른 타입을 지닐 수 있다. 
+- 튜플과는 다르게 각 구성요소들은 명명할 수 있어 값이 의미하는 바를 명확하게 인지할 수 있다. (튜플보다 유연하다.)
+- <code>struct</code> 키워드를 입력해서 구조체를 만들 수 있다.
+
 ```rust
 struct User {
     username: String,
@@ -846,8 +855,8 @@ struct User {
     active: bool,
 }
 ```
-
 > 구조체를 사용하려면 인스턴스(instance)를 생성해야 한다. key, value를 사용한다.
+
 ```rust
 let user1 = User {
     email: String::from("someone@example.com"),
@@ -857,7 +866,8 @@ let user1 = User {
 };
 ```
 
-> 구조체는 .을 사용해서 불러오면 되고 =를 사용해서 값을 변경할 수 있다. (반드시 mutable이여야 한다.)
+> 구조체는 .을 사용해서 불러오면 되고 =를 사용해서 값을 변경할 수 있다. (반드시 <code>mutable</code>이여야 한다.)
+
 ```rust
 let mut user1 = User {
     email: String::from("someone@example.com"),
@@ -869,7 +879,9 @@ let mut user1 = User {
 user1.email = String::from("anotheremail@example.com");
 ```
 
-> 함수로 구조체를 만들 수 있다. 또한 축약법도 가능하다. 
+### 변수명이 필드명과 같을 때 간단하게 필드 초기화하기 
+- 변수명과 구조체의 필드명이 같다면, <code>필드 초기화 축약법</code>을 이용할 수 있다. 
+
 ```rust
 fn build_user(email: String, username: String) -> User {
     User {
@@ -890,9 +902,13 @@ fn build_user(email: String, username: String) -> User {
 }
 ```
 
-- 구조체 갱신법을 이용하여 기존 구조체 인스턴스로 새 구조체 인스턴스 생성하기 
+### 구조체 갱신법을 이용하여 기존 구조체 인스턴스로 새 구조체 인스턴스 생성하기 
+
+- 존재하는 인스턴스에서 기존 값의 대부분은 재사용하고, 몇몇 값만 바꿔 새로운 인스턴스를 정의할 수 있다. 
+- 밑의 예제에서는 <code>user2</code>에 <code>email</code>과 <code>username</code>은 새로 할당하고, 나머지들은 <code>user1</code>의 값들을 그대로 사용해서 새로운 인스턴스를 생성하는 법을 보여준다. 
+
 ```rust
-let user2 = User {
+let user1 = User {
     email: String::from("another@example.com"),
     username: String::from("anotherusername567"),
     active: user1.active,
@@ -906,7 +922,10 @@ let user2 = User {
 };
 ```
 
-- 이름이 없고 필드마다 타입은 다르게 정의 가능한 튜플 구조체 
+### 이름이 없고 필드마다 타입은 다르게 정의 가능한 튜플 구조체 
+
+- <code>튜플 구조체</code>는 일반적인 구조체 정의방법과 똑같이 <code>struct</code>키워드를 통해 정의할 수 있고, 튜플의 타입 정의가 키워드 뒤에서 이루어지면 된다. 
+
 ```rust
 struct Color(i32, i32, i32);
 struct Point(i32, i32, i32);
@@ -914,6 +933,8 @@ struct Point(i32, i32, i32);
 let black = Color(0, 0, 0);
 let origin = Point(0, 0, 0);
 ```
+</details>
+
 
 ## 5.2 구조체를 이용한 예제 프로그램
 > 사각형의 넓이를 계산하는 프로그램을 작성한다. 
