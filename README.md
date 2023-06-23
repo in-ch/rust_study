@@ -20,6 +20,8 @@ https://rinthel.github.io/rust-lang-book-ko/
 
 [5.2 구조체를 이용한 예제 프로그램](#52-구조체를-이용한-예제-프로그램)
 
+[5.3 메소드 문법](#53-메소드-문법)
+
 ## 3.1 변수와 가변성
 <details>
     <summary>자세히 보기</summary>
@@ -1034,9 +1036,15 @@ fn main() {
 
 
 
-## 5.3 메소드
-> 메소드는 함수와 유사하다. fn 키워드와 이름을 가지고 선언되고, 파라미터와 반환값을 가지고 있으며, 다른 어딘가로부터 호출되었을때 실행될 코드를 담고 있다.
-> 다만 메소드는 함수와는 달리 구조체의 내용 안에 정의되며 첫번째 파라미터가 언제나 self인데, 이는 메소드가 호출되고 있는 구조체의 인스턴스를 나타낸다.
+## 5.3 메소드 문법
+
+<details>
+    <summary>자세히 보기</summary>
+
+> 메소드는 함수와 유사하다. <code>fn 키워드</code>와 이름을 가지고 선언되고, 파라미터와 반환값을 가지고 있으며, 다른 어딘가로부터 호출되었을때 실행될 코드를 담고 있다.
+> 다만 메소드는 함수와는 달리 구조체의 내용 안에 정의되며 첫번째 파라미터가 언제나 <code>self</code>인데, 이는 메소드가 호출되고 있는 <code>구조체의 인스턴스</code>를 나타낸다.
+
+### 메서드 정의하기 
 
 예제
 ```rust
@@ -1062,7 +1070,11 @@ fn main() {
 }
 ```
 
-> Rectangle의 내용 안에 함수를 정의하기 위해서는 ,impl(구현: implementation) 블록을 시작한다. 그 다음 area함수를 impl 중괄호로 옮기고 시그니처 및 본체 내의 모든 곳에 있는 파라미터를 self로 변경시킨다. 
+> <code>Rectangle</code>의 내용 안에 함수를 정의하기 위해서는, <code>impl(구현: implementation)</code> 블록을 시작한다. 그 다음 <code>area</code>함수를 <code>impl</code> 중괄호로 옮기고 시그니처 및 본체 내의 모든 곳에 있는 파라미터를 <code>self</code>로 변경시킨다. 
+> <code>area</code>의 시그니처 내에서는, rectangle: &Rectangle 대신 <code>&self</code>가 사용되었는데 이는 메소드가 <code>impl Rectangle</code> 내용물 안에 위치하고 있어 러스트가 <code>self</code>의 타입이 Rectangle 라는 사실을 알 수 있기 때문이다.
+> <code>&</code>을 썻기 때문에 소유권을 빌려오는 것을 알 수 있다.  
+
+### 더 많은 파라미터를 가진 메소드
 
 예제 2 
 ```rust
@@ -1087,8 +1099,10 @@ fn main() {
 ```
 
 ### 연관 함수
-> impl 블록의 유용한 기능은 self 파라미터를 갖지 않는 함수도 impl 내에 정의하는 것이 허용된다는 것이다. 이걸 연관 함수(associated functions)라고 부른다. 
+
+> <code>impl</code> 블록의 유용한 기능은 <code>self</code> 파라미터를 갖지 않는 함수도 <code>impl</code> 내에 정의하는 것이 허용된다는 것이다. 이걸 <code>연관 함수(associated functions)</code>라고 부른다. 
 > 연관 함수는 새로운 구조체의 인스턴스를 반환해주는 생성자로서 자주 사용된다. 
+
 ```rust
 impl Rectangle {
     fn square(size: u32) -> Rectangle {
@@ -1096,11 +1110,13 @@ impl Rectangle {
     }
 }
 ```
-> 이 연관 함수를 호출하기 위해서는 <code>let sq = Rectangle::square(3);</code> 처럼, 구조체 이름과 함께 :: 문법을 이용한다. 
+> 이 연관 함수를 호출하기 위해서는 <code>let sq = Rectangle::square(3);</code> 처럼, 구조체 이름과 함께 <code>::</code> 문법을 이용한다. 
+  이 함수는 구조체의 이름공간 내에 있다.
 
 ### 정리 
 > 구조체는 커스텀 타입을 만들 수 있게 해준다. 구조체를 이용함으로써, 연관된 데이터의 조각들을 서로 연결하여 유지할 수 있으며 각 데이터 조각에 이름을 붙여 코드를 더 명확하게 만들어 줄 수 있다. 
 
+</details>
 
 # 열거형(enum) 정의학
 > 
