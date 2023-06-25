@@ -1125,6 +1125,13 @@ impl Rectangle {
 > 열거형은 다른 언어들에서도 볼 수 있는 특징이지만, 각 언어마다 열거형으로 할 수 있는 것들이 다르다.
   러스트의 열거형은 <code>F#</code>, <code>OCaml</code>, <code>Haskell</code>과 같은 함수형 언어의 대수 데이터 타입과 가장 비슷하다. 
 
+## 6.1 열거형 정의하기 
+
+<details>
+    <summary>자세히 보기</summary>
+
+> 열거형은 다음과 같은 때에 유용할 것이다. 예를 들어 아이피같은 경우는 두 개의 주요한 표준이 있다. 바로 버전4와 버전6인데, 경우의 수가 이 두개가 전부이기 때문에 모든 가능한 값들을 나열(enumerate)하는 게 더 좋을 것이다. 
+
 ```rust
 enum IpAddrKind {
     V4,
@@ -1133,19 +1140,64 @@ enum IpAddrKind {
 ```
 이렇게 하면 <code>IpAddrKind</code>는 우리의 코드 어디에서나 쓸 수 있는 데이터 타입이 되었다.
 
-> 이걸 활용해서 인스턴스도 만들 수 있다.
+### 열거형 값 
 
 ```rust
 let four = IpAddrKind::V4;
 let six = IpAddrKind::V6;
-
+```
+- <code>열거형의 variants</code>는 열거형을 정의한 식별자에 의해 이름 공간이 생기며, 두 개의 콜론을 사용하여 둘을 구분할 수 있다.  
+- 다음과 같이 <code>IpAddrKind</code>타입을 인자로 받는 함수를 정의할 수 있다.
+```rust
 fn route(ip_type: IpAddrKind) { }
+```
 
+> 그리고 <code>variant</code> 중 하나를 사용해서 다음과 같이 함수를 호출할 수 있다.
+```rust
 route(IpAddrKind::V4);
 route(IpAddrKind::V6);
 ```
 
-> 다음과 같이 처리할 수도 있다.
+### 좀 더 긴 예제 
+```rust
+enum IpAddrKind {
+    V4,
+    V6,
+}
+
+struct IpAddr {
+    kind: IpAddrKind,
+    address: String,
+}
+
+let home = IpAddr {
+    kind: IpAddrKind::V4,
+    address: String::from("127.0.0.1"),
+};
+
+let loopback = IpAddr {
+    kind: IpAddrKind::V6,
+    address: String::from("::1"),
+};
+```
+- 이렇게 <code>구조체에 넣을 수 있다.</code>
+
+- 또다른 예제 
+```rust
+enum IpAddr {
+    V4(String),
+    V6(String),
+}
+
+let home = IpAddr::V4(String::from("127.0.0.1"));
+
+let loopback = IpAddr::V6(String::from("::1"));
+```
+- 각 열거형 <code>variant</code>에 데이터를 직접 넣는 방식을 사용해서 열거형을 구조체의 일부로 사용하는 방식보다 더 간결하게 동일한 개념을 표현할 수 있다.
+- 각 <code>IpAddr</code>열거형의 새로운 정의에서는 두 개의 <code>V4</code>와 <code>V6</code>는 연관된 <code>String</code> 타입의 값을 갖게 된다.
+- 이렇게 하니깐 각 <code>variant</code>에 직접 데이터를 붙임으로써, 구조체를 굳이 사용할 필요가 없어졌다. 
+
+- 또다른 예제 
 ```rust
 enum IpAddr {
     V4(u8, u8, u8, u8),
@@ -1156,7 +1208,39 @@ let home = IpAddr::V4(127, 0, 0, 1);
 
 let loopback = IpAddr::V6(String::from("::1"));
 ```
+- 이렇게 각 <code>enum</code>에 다른 구조를 넣을 수 있다. 
+- 또 열거형에는 어떤 자료형이든지 넣을 수 있다. 
+
 
 ### Option 열거형과 Null 값 보다 좋은 점들.
-> Option 타입은 많이 사용되는데, 값이 있거나 없을 수도 있는 아주 흔한 상황을 나타내기 때문이다.
+> <code>Option</code> 타입은 많이 사용되는데, 값이 있거나 없을 수도 있는 아주 흔한 상황을 나타내기 때문이다.
+  <code>null</code> 값으로 발생하는 문제는, <code>null</code>값을 <code>null</code>이 아닌 값처럼 사용하려고 할 때 여러 종류의 오류가 발생할 수 있다는 것이다. 
+  그래서 <code>null</code>대신 <code>Option</code>을 쓰는 게 좋다. 
+
+```rust
+enum Option<T> {
+    Some(T),
+    None,
+}
+
+let some_number = Some(5);
+let some_string = Some("a string");
+
+let absent_number: Option<i32> = None;
+```
+
+### 왜 Option<T> 가 null 을 갖는 것보다 나을까? 
+
+- 만약 다음과 같이 하면 오류가 발생한다. 
+```rust
+let x: i8 = 5;
+let y: Option<i8> = Some(5);
+
+let sum = x + y;
+```
+> 이렇게 하면 오류가 발생한다. 왜냐하면 <code>i8</code>과 <code>Option<i8></code>은 다른 타입이기 때문이다. 
+  다르게 얘기하자면, <code>T</code> 에 대한 연산을 수행하기 전에 <code>Option<T></code> 를 <code>T</code> 로 변환해야 한다. 
+  일반적으로, 이런 방식은 <code>null</code>과 관련된 가장 흔한 이슈 중 하나를 발견하는데 도움을 준다. -> 실제로 <code>null</code> 일 때, <code>null</code> 이 아니라고 가정하는 경우이다. 
+
+</details>
 
