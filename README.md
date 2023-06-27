@@ -22,6 +22,10 @@ https://rinthel.github.io/rust-lang-book-ko/
 
 [5.3 메소드 문법](#53-메소드-문법)
 
+[6.1 열거형 정의하기](#61-열거형-정의하기)
+
+[6.2 match 흐름 제어 연산자](#62-match-흐름-제어-연산자)
+
 ## 3.1 변수와 가변성
 <details>
     <summary>자세히 보기</summary>
@@ -1244,3 +1248,102 @@ let sum = x + y;
 
 </details>
 
+## 6.2 match 흐름 제어 연산자
+
+<details>
+    <summary>자세히 보기</summary>
+
+- 러스트는 <code>match</code>라고 불리는 극도로 강력한 흐름 제어 연산자를 가지고 있다. 이는 우리에게 일련의 패턴에 대해 어떤 값을 비교한 뒤 어떤 패턴에 매치되었는지를 바탕으로 코드를 수행하게 해준다.
+- 패턴은 리터럴 값, 변수명, 와일드카드, 그리고 많은 것들로 구성될 수 있다. (18장에서 더 다룰 것이다.)
+- <code>match</code>의 힘은 패턴의 표현성으로부터 오며 컴파일러는 모든 가능한 경우가 다루어지는지를 검사한다. 
+- <code>match</code>내의 각 패턴을 통과하고, 해당 값에 "맞는" 첫 번째 패턴에서, 그 값은 실행 중에 사용될 연관된 코드 블럭 안으로 떨어진다. 
+
+```rust
+enum Coin {
+    Penny,
+    Nickel,
+    Dime,
+    Quarter,
+}
+
+fn value_in_cents(coin: Coin) -> u32 {
+    match coin {
+        Coin::Penny => 1,
+        Coin::Nickel => 5,
+        Coin::Dime => 10,
+        Coin::Quarter => 25,
+    }
+}
+```
+- <code>if</code>와 비슷해보이지만 큰 차이점이 있다. 
+    1. <code>if</code>를 사용할 때는, 해당 표현식은 부울린 값을 반환할 필요가 있다. 여기서는 어떤 타입이든 가능하다. 
+    2. 다음은 <code>match</code> 갈래(arm)이다. 하나의 갈래는 두 부분을 갖고 있다: 패턴과 어떤 코드로. 여기서의 첫 번째 갈래는 값 <code>Coin::Penny</code>로 되어있는 패턴을 가지고 있고 그 후에 패턴과 실행되는 코드를 구분해주는 => 연산자가 있다. 위의 경우에서 코드는 그냥 값 <code>1</code>이다. 각 갈래는 그다음 갈래와 쉼표로 구분한다. 
+    3. 각 갈래와 연관된 코드는 <code>표현식</code>이고, 이 매칭 갈래에서의 표현식의 결과 값은 전체 <code>match</code> 표현식에 대해 반환되는 값이다. 
+    4. <code>중괄호({})</code>를 사용할 수도 있다. (짧다면 사용하지 않는다.)
+
+```rust
+fn value_in_cents(coin: Coin) -> u32 {
+    match coin {
+        Coin::Penny => {
+            println!("Lucky penny!");
+            1
+        },
+        Coin::Nickel => 5,
+        Coin::Dime => 10,
+        Coin::Quarter => 25,
+    }
+}
+```
+
+### 값들을 바인딩하는 패턴들 
+- 매치 갈래의 또 다른 유용한 기능은 패턴과 매치된 값들의 부분을 바인딩할 수 있다는 것이다. 이것이 열거형 <code>variant</code>로 부터 어떤 값들을 추출할 수 있는 방법이다. 
+
+```rust
+enum UsState {
+    Alabama,
+    Alaska,
+    // ... etc
+}
+
+enum Coin {
+    Penny,
+    Nickel,
+    Dime,
+    Quarter(UsState),
+}
+
+fn value_in_cents(coin: Coin) -> u32 {
+    match coin {
+        Coin::Penny => 1,
+        Coin::Nickel => 5,
+        Coin::Dime => 10,
+        Coin::Quarter(state) => {
+            println!("State quarter from {:?}!", state);
+            25
+        },
+    }
+}
+
+value_in_cents(Coin::Quarter(UsState::Alaska))
+```
+> <code>value_in_cents(Coin::Quarter(UsState::Alaska))</code>를 호출하면, coin은 <code>Coin::Quarter(UsState::Alaska)</code>가 된다. 각각의 매치 갈래들과 이 값을 비교할 때, <code>Coin::Quarter(state)</code>에 도달할 때까지 아무것도 매치되지 않는다. 이 시점에서, state에 대한 바인딩은 값 <code>UsState::Alaska</code>가 된다. 그러면 이 바인딩을 <code>println!</code> 표현식 내에서 사용할 수 있고, 따라서 <code>Quarter</code>에 대한 <code>Coin</code> 열거형 variant로부터 내부의 주에 대한 값을 얻는다.
+
+### Option<T>를 이용하는 매칭 
+
+> 이전 절에서 <code>Option<T></code>을 사용할 때 Some 케이스로부터 내부의 T 값을 얻을 필요가 있었다; Coin 열거형을 가지고 했던 것처럼 <code>match</code>를 이용하여 <code>Option<T></code>를 다룰 수 있다. 동전들을 비교하는 대신, <code>Option<T></code>의 variant를 비교할 것이지만, <code>match</code> 표현식이 동작하는 방법은 동일하게 남아있다.
+
+```rust
+fn plus_one(x: Option<i32>) -> Option<i32> {
+    match x {
+        None => None,
+        Some(i) => Some(i + 1),
+    }
+}
+
+let five = Some(5);
+let six = plus_one(five);
+let none = plus_one(None);
+```
+- 처음 5는 아무것도 매칭되지 않기 때문에 <code>let five = 5</code>이고, <code>plus_one(five)</code>는 <code>five</code>가 Some(5)이므로 6이 된다. 
+
+</details>
