@@ -26,6 +26,8 @@ https://rinthel.github.io/rust-lang-book-ko/
 
 [6.2 match 흐름 제어 연산자](#62-match-흐름-제어-연산자)
 
+[6.3 if let을 사용한 간결한 흐름 제어](#63-if-let을-사용한-간결한-흐름-제어)
+
 ## 3.1 변수와 가변성
 <details>
     <summary>자세히 보기</summary>
@@ -1345,5 +1347,59 @@ let six = plus_one(five);
 let none = plus_one(None);
 ```
 - 처음 5는 아무것도 매칭되지 않기 때문에 <code>let five = 5</code>이고, <code>plus_one(five)</code>는 <code>five</code>가 Some(5)이므로 6이 된다. 
+
+</details>
+
+## 6.3 if let을 사용한 간결한 흐름 제어 
+
+<details>
+    <summary>자세히 보기</summary>
+
+> <code>if let</code>문법은 <code>if</code>와 <code>let</code>을 조합하여 하나의 패턴만 매칭시키고 나머지 경우는 무시하는 값을 다루는 덜 수다스러운 방법을 제공한다. 
+  
+- 아래는 어떤 <code>Option<u8></code>값을 매칭하지만 그 값이 3일 경우에만 코드를 실행시키고 싶어하는 코드이다. 
+
+```rust
+let some_u8_value = Some(0u8);
+match some_u8_value {
+    Some(3) => println!("three"),
+    _ => (),
+}
+```
+
+- 여기서 <code>Some(3)</code>이 매칭되는 경우에만 뭔가를 하지만 다른 <code>Some<u8></code>값 혹은 <code>None</code>값인 경우에는 아무것도 하지 않고 싶다. 
+  이러한 <code>match</code>표현식을 만족시키기 위해, <code>_ => ()</code>을 단 하나의 variant를 처리한 다음에 추가해야 하는데, 이는 추가하기에 너무 많은 보일러 플레이트 코드가 추가된다. 
+
+  그 대신 <code>if let</code>을 이용하여 이 코드를 더 짧게 쓸 수 있다. 
+
+```rust
+if let Some(3) = some_u8_value {
+    println!("three");
+}
+```
+> <code>if let</code>은 =로 구분된 패턴과 표현식을 입력받는다.
+  이는 <code>match</code>와 동일한 방식으로 작동하는데, 여기서 표현식은 <code>match</code>에 주어지는 것이고 패턴은 이 <code>match</code>의 첫 번째 갈래와 같다. 
+  <code>if let</code>을 이용하는 것은 덜 타이핑하고, 덜 들여 쓰기 하고, 보일러 플레이트 코드를 덜 쓰게 된다는 뜻이다. 단, <code>match</code>가 강제했던 빠짐없는 검사를 잃게 되기는 한다. 
+
+### else도 사용 가능하다.
+> <code>if let</code>과 함께 <code>else</code>를 포함시킬 수 있다.
+  <code>else</code> 뒤에 나오는 코드 블록은 <code>match</code>표현식에서 _ 케이스 뒤에 나오는 코드 블록과 동일하다. 
+
+```rust
+let mut count = 0;
+match coin {
+    Coin::Quarter(state) => println!("State quarter from {:?}!", state),
+    _ => count += 1,
+}
+```
+혹은 
+```rust
+let mut count = 0;
+if let Coin::Quarter(state) = coin {
+    println!("State quarter from {:?}!", state);
+} else {
+    count += 1;
+}
+```
 
 </details>
