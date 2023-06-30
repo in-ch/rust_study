@@ -1412,3 +1412,121 @@ if let Coin::Quarter(state) = coin {
 - <code>mod</code> 키워드는 새로운 모듈을 선언한다. 모듈 내의 코드는 이 선언 바로 뒤에 중괄호로 묶여서 따라오거나 다른 파일에 놓일 수 있다.
 - 기본적으로 함수, 타입, 상수, 그리고 모듈은 <code>private</code>이다. <code>pub</code> 키워드가 어떤 아이템을 public하게 만들어줘서 이것의 네임스페이스 바깥쪽에서도 볼 수 있도록 한다.
 - <code>use</code>키워드는 모듈이나 모듈 내의 정의들을 스코프 안으로 가져와서 이들을 더 쉽게 참조할 수 있도록 한다. 
+
+## 7.1 mod와 파일 시스템 
+
+<details>
+    <summary>자세히 보기</summary>
+
+- 새로운 프로젝트를 만드는 것으로 <code>바이너리 크레이트(crate)</code>을 만드는 것 대신에 <code>라이브러리 크레이트</code>를 만들 것이다. 
+- <code>라이브러리 크레이트</code>란 다른 사람들이 자신들의 프로젝트에 디펜던시로 추가할 수 있는 프로젝트를 말한다 
+- 라이브러리를 만들 때는 <code>--bin</code>대신에 <code>--lib</code> 옵션을 넘겨야 한다.
+
+```cli
+$ cargo new communicator --lib
+$ cd communicator
+```
+- 이렇게 하면 기존과 다른 파일을 만들어 준다.
+
+```rust
+#[cfg(test)]
+mod tests {
+    #[test]
+    fn it_works() {
+    }
+}
+```
+
+### 모듈 정의
+- <code>communicator</code> 네트워크 라이브러리를 만들기 위해, 먼저 <code>connect</code>라는 이름의 함수가 정의되어 있는 <code>network</code>라는 이름의 모듈을 정의한다. 
+- 러스트 내의 모듈 정의는 모두 <code>mod</code>로 시작된다.
+
+```rust
+mod network {
+    fn connect() {
+    }
+}
+
+mod client {
+    fn connect() {
+    }
+}
+```
+
+- 이 함수를 <code>network</code> 모듈 바깥의 스크립트에서 호출하고자 한다면, 우리는 모듈을 특정할 필요가 있으므로 이름공간 문법 <code>::</code>를 이용해야 한다. ex) <code>network::connect</code>
+
+- 만약에 다음과 같이 하면 어떻게 될까? 
+```rust
+mod network {
+    fn connect() {
+    }
+
+    mod client {
+        fn connect() {
+        }
+    }
+}
+```
+- 이렇게 써야 한다. <code>network::client::connect</code>
+
+- 그리고 구조는 다음과 같이 된다. 
+```rust
+communicator
+ └── network
+     └── client
+```
+
+### 모듈을 다른 파일로 옮기기 
+```rust
+mod client {
+    fn connect() {
+    }
+}
+
+mod network {
+    fn connect() {
+    }
+
+    mod server {
+        fn connect() {
+        }
+    }
+}
+
+communicator
+ ├── client
+ └── network
+     └── server
+```
+
+> 이렇게 계속 하면 파일이 너무 길어진다. 그래서 각각 파일을 <code>src/lib.rs</code>로부터 떼어내어 각자를 위한 파일들에 위치시켜 분리할 수 있다. 
+
+Filename: src/lib.rs
+```rust
+mod client;
+
+mod network {
+    fn connect() {
+    }
+
+    mod server {
+        fn connect() {
+        }
+    }
+}
+```
+
+Filename: src/client.rs
+```rust
+fn connect() {
+}
+```
+
+- 이미 <code>src/lib.rs</code>안에다가 <code>client</code>모듈을 <code>mod</code>를 이용하여 선언을 했기 때문에, 이 파일 안에는 <code>mod</code> 선언이 필요없다. 단지 <code>src/client.rs</code>에는 <code>client</code> 모듈의 내용물만 제공할 뿐이다. 
+- 만약 또 여기에 mod를 만들면 <code>client</code> 모듈 내에 또다른 서브<code>client</code>모듈을 만들 뿐이다. 
+
+### build를 위해 cargo build를 써야한다. 
+
+
+
+</details>
