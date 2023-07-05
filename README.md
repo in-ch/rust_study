@@ -1525,8 +1525,20 @@ fn connect() {
 - 이미 <code>src/lib.rs</code>안에다가 <code>client</code>모듈을 <code>mod</code>를 이용하여 선언을 했기 때문에, 이 파일 안에는 <code>mod</code> 선언이 필요없다. 단지 <code>src/client.rs</code>에는 <code>client</code> 모듈의 내용물만 제공할 뿐이다. 
 - 만약 또 여기에 mod를 만들면 <code>client</code> 모듈 내에 또다른 서브<code>client</code>모듈을 만들 뿐이다. 
 
-### build를 위해 cargo build를 써야한다. 
+### 모듈 파일 시스템의 규칙
 
+- 만일 <code>foo</code>라는 이름의 모듈이 서브모듈을 가지고 있지 않다면, <code>foo.rs</code>라는 이름의 파일 내에 <code>foo</code>에 대한 선언을 집어넣어야 한다.
 
+- 만일 <code>foo</code>가 서브모듈을 가지고 있다면, <code>foo/mod.rs</code>라는 이름의 파일에 <code>foo</code>에 대한 선언을 집어넣어야 합니다.
+
+> 이 규칙들은 재귀적으로 적용되므로, <code>foo</code>라는 이름의 모듈이 <code>bar</code>라는 이름의 서브모듈을 갖고 있고 <code>bar</code>는 서브모듈이 없다면, src 디렉토리 안에는 아래와 같은 파일들이 있어야 한다. 
+
+```rust
+├── foo
+│   ├── bar.rs (contains the declarations in `foo::bar`)
+│   └── mod.rs (contains the declarations in `foo`, including `mod bar`)
+```
+
+> 이 모듈들은 부모 모듈의 파일에 <code>mod</code> 키워드를 사용하여 선언되어 있어야 한다. 
 
 </details>
