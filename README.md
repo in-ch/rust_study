@@ -28,6 +28,8 @@ https://rinthel.github.io/rust-lang-book-ko/
 
 [6.3 if let을 사용한 간결한 흐름 제어](#63-if-let을-사용한-간결한-흐름-제어)
 
+[7.1 mod와 파일 시스템](#71-mod와-파일-시스템)
+
 ## 3.1 변수와 가변성
 <details>
     <summary>자세히 보기</summary>
@@ -1542,3 +1544,4 @@ fn connect() {
 > 이 모듈들은 부모 모듈의 파일에 <code>mod</code> 키워드를 사용하여 선언되어 있어야 한다. 
 
 </details>
+
