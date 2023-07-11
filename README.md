@@ -30,6 +30,8 @@ https://rinthel.github.io/rust-lang-book-ko/
 
 [7.1 mod와 파일 시스템](#71-mod와-파일-시스템)
 
+[7.2 pub으로 가시성 제어하기](#72-pub으로-가시성-제어하기)
+
 ## 3.1 변수와 가변성
 <details>
     <summary>자세히 보기</summary>
@@ -1545,3 +1547,85 @@ fn connect() {
 
 </details>
 
+
+## 7.2 pub으로 가시성 제어하기
+
+<details>
+    <summary>자세히 보기</summary>
+
+> 이번에는 <code>connect</code>라는 함수들을 또다른 프로젝트에 사용되게 만들게 시도해보자.
+
+```rust
+extern crate communicator;
+
+fn main() {
+    communicator::client::connect();
+}
+```
+
+- <code>communicator</code> 라이브러리 크레이트를 가져오기 위해 <code>extern crate</code> 명령어를 사용한다. 
+
+- <code>communicator</code> 라이브러리 밖의 크레이트가 안을 들여다 보는 시점에서, 우리가 만들어왔던 모든 모듈들은 <code>communicator</code>라는 이름을 갖는 모듈 내에 있다 크레이트의 최상위 모듈을 <code>루트 모듈 (root module)</code> 이라 부른다.
+
+- 또한. 비록 프로젝트의 서브모듈 내에서 외부 크레이트를 이용하고 있을지라도, <code>extern crate</code>이 루트 모듈에 와 있어야 한다는 점(즉 <code>src/main.rs</code> 혹은 <code>src/lib.rs</code>)을 기억해야 한다. 그러면 서브모듈 안에서 마치 최상위 모듈의 아이템을 참조하듯 외부 크레이트로부터 아이템들을 참조할 수 있다. 
+
+-  바이너리 크레이트는 고작 라이브러리의 <code>client</code> 모듈로부터 <code>connect</code> 함수를 호출할 뿐이다. 하지만 <code>cargo build</code>을 실행하면 경고들 이후에 에러를 표시할 것이다.
+
+```rust
+error: module `client` is private
+ --> src/main.rs:4:5
+  |
+4 |     communicator::client::connect();
+  |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+```
+> 여기서 알 수 있는 것은 <code>client</code> 모듈이 비공개임을 알려주고 있다. (러스트의 내용 중에서 공개 그리고 비공개에 대한 개념에 대해 알 수 있는 첫번째 시간이답). 참고로 모든 러스트의 안에 코드의 기본 상태는 비공개이다. 즉, 다른 사람은 이 코드를 사용할 수 없다. 
+  만약 프로그램 내에서 비공개 함수를 이용하지 않는다면, 루트 프로그램이 그 함수를 이용할 수 있는 유일한 곳이기 때문에, 러스트는 그 함수가 사용된 적이 없다고 경고를 낼 것이다. 
+
+> <code>client::connect</code>와 같은 함수를 공개로 지정한 뒤에는 우리의 바이너리 크레이트 상에서 이 함수를 호출하는 것이 가능해질 뿐만 아니라, 그 함수가 사용된 적이 없다는 경고 또한 사라질 것이다. -> 함수를 공개로 표시하는 것은 러스트로 하여금 그 함수가 우리 프로그램 외부의 코드에 의해 사용될 것이라는 점을 알게끔 해준다. 
+
+### 함수를 공개로 만들기 
+
+- 러스트에게 어떤 것을 공개하기 위해서는, 공개하길 원하는 아이템의 선언 시작 부분에 <code>client::connect</code>가 사용된 적 없음을 알리는 경고와 바이너리 크레이트에서 나온 <code>module `client` is private</code>를 없애야 한다.
+
+```rust
+pub mod client;
+
+pub mod network;
+```
+
+```rust
+pub fn connect() {
+}
+
+mod server;
+```
+
+### 비공개 규칙(Privacy Rules)
+> 다음과 같은 규칙이 있다.
+- 만일 어떤 아이템이 공개라면, 이는 부모 모듈의 어디에서건 접근이 가능하다.
+- 만일 어떤 아이템이 비공개라면, 같은 파일 내에 있는 부모 모듈 및 이 부모의 자식 모듈에서만 접근 가능하다. 
+
+### 비공개 예제(Privacy Examples)
+
+```rust
+mod outermost {
+    pub fn middle_function() {}
+
+    fn middle_secret_function() {}
+
+    mod inside {
+        pub fn inner_function() {}
+
+        fn secret_function() {}
+    }
+}
+
+fn try_me() {
+    outermost::middle_function();
+    outermost::middle_secret_function();
+    outermost::inside::inner_function();
+    outermost::inside::secret_function();
+}
+```
+
+</details>
