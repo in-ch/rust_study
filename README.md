@@ -32,6 +32,8 @@ https://rinthel.github.io/rust-lang-book-ko/
 
 [7.2 pub으로 가시성 제어하기](#72-pub으로-가시성-제어하기)
 
+[7.3 use로 이름 가져오기](#73-use로-이름-가져오기)
+
 ## 3.1 변수와 가변성
 <details>
     <summary>자세히 보기</summary>
@@ -1627,5 +1629,114 @@ fn try_me() {
     outermost::inside::secret_function();
 }
 ```
+
+</details>
+
+## 7.3 use로 이름 가져오기
+
+<details>
+    <summary>자세히 보기</summary>
+
+- 다음은 <code>nested_modules</code>함수를 호출하는 것처럼, 모듈 이름을 호출 구문의 일부분으로 사용하여 해당 모듈 내에 정의된 함수를 호출하는 방법을 다룬다. 
+
+```rust
+pub mod a {
+    pub mod series {
+        pub mod of {
+            pub fn nested_modules() {}
+        }
+    }
+}
+
+fn main() {
+    a::series::of::nested_modules();
+}
+```
+
+- 위에서 보다시피 완전하게 경로를 지정한 이름을 참조하는 것은 너무 길어질 수 있다. 다행히도 러스트는 이러한 호출을 더 간결하게 만들어주는 키워드를 가지고 있다. 
+
+### use를 이용한 간결한 가져오기 
+
+> 러스트의 <code>use</code> 키워드는 스코프 내에서 호출하고 싶어하는 함수의 모듈을 가져옴으로써 긴 함수 호출을 줄여준다. 
+
+```rust
+pub mod a {
+    pub mod series {
+        pub mod of {
+            pub fn nested_modules() {}
+        }
+    }
+}
+
+use a::series::of;
+
+fn main() {
+    of::nested_modules();
+}
+```
+
+- <code>use a::series::of;</code> 줄은 <code>of</code> 모듈을 참조하고 싶은 곳마다 <code>a::series::of</code> 전부를 사용하기 보다는 of를 사용할 수 있다는 뜻.
+- 단, 위의 코드에서 <code>use</code> 키워드는 우리가 명시한 것만 스코프 내로 가져온다: 즉 모듈의 자식들을 스코프 내로 가져오지는 않는다. 이는 <code>nested_modules</code> 함수를 호출하고자 할 때 여전히 <code>of::nested_modules</code>를 사용해야 하는 이유이다.  -> 다음과 같이 <code>use</code>구문 안에서 모듈 대신 함수를 명시하여 스코프 내에서 함수를 가져올 수 있다. 
+
+```rust
+pub mod a {
+    pub mod series {
+        pub mod of {
+            pub fn nested_modules() {}
+        }
+    }
+}
+
+use a::series::of::nested_modules;
+
+fn main() {
+    nested_modules();
+}
+```
+
+- 열거형 또한 모듈과 비슷한 일종의 이름공간을 형성하고 있기 때문에, 열거형의 variant 또한 <code>use</code>를 이용하여 가져올 수 있다. 
+- 어떠한 <code>use</code>구문이건 하나의 이름공간으로부터 여러 개의 아이템을 가져오려 한다면, 아래와 같이 중괄호와 쉼표를 구문의 마지막 위치에 사용하여 이 아이템들을 나열 할 수 있다.
+
+```rust
+enum TrafficLight {
+    Red,
+    Yellow,
+    Green,
+}
+
+use TrafficLight::{Red, Yellow};
+
+fn main() {
+    let red = Red;
+    let yellow = Yellow;
+    let green = TrafficLight::Green;
+}
+```
+> <code>Green variant</code>에 대해서는 여전히 <code>TrafficLight</code> 이름공간을 명시하고 있는데, 이는 <code>use</code> 구문 내에 <code>Green</code>를 포함하지 않았기 때문이다.
+
+### *를 이용한 모두(glob) 가져오기 
+- 이름공간 내의 모든 아이템을 가져오기 위해서는 <code>*</code>문법을 이용할 수 있다. 
+- <code>*</code>은 <code>글론(glob)</code>이라고 부르며, 이는 이름공간 내에 공개된 모든 아이템을 가져온다. 
+- 단, 글론은 편리하지만, 예상보다 많은 아이템을 끌어와서 이름 간의 <code>충돌(naming conflict)</code>의 원인이 될 수 있다.
+
+```rust
+enum TrafficLight {
+    Red,
+    Yellow,
+    Green,
+}
+
+use TrafficLight::*;
+
+fn main() {
+    let red = Red;
+    let yellow = Yellow;
+    let green = Green;
+}
+```
+
+### super를 사용하여 부모 모듈에 접근하기 
+- 다음과 같이 <code>super</code>를 사용하여 계층 구조 상에서 현재 모듈로부터 한 모듈 거슬러 올라갈 수 있다.
+<code>super::client::connect()</code>
 
 </details>
