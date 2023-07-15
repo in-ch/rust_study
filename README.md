@@ -1862,3 +1862,90 @@ let row = vec![
 ```
 
 </details>
+
+## 8.2 스트링
+
+<details>
+    <summary>자세히 보기</summary>
+
+### 개요
+- 스트링이 컬렉션 장에 있는 이유는 스트링이 바이트의 컬렉션 및 이 바이트들을 텍스트로 통역할 때 유용한 기능을 제공하는 몇며 메소드로 구현되어 있기 떄문이다.
+- 이번 절에서는 생성, 갱신, 값 읽기와 같은 모든 컬렉션 타입이 가지고 있는, <code>String</code>에서의 연산에 대해 이야기 할 것이다. 또한 <code>String</code>을 다른 컬렉션들과 다르게 만드는 부분, 즉 사람과 컴퓨터가 <code>String</code> 데이터를 통역하는 방식 간의 차이로 인해 생기는 <code>String</code> 인덱싱의 복잡함을 논의해 볼 것이다.
+
+### 스트링이란? 
+
+- <code>&str</code>에서 봤듯이, 러스트는 핵심 언어 기능 내에서 딱 한가지 스트링 타입만 제공하는데, 이는 바로 스트링 슬라이스인 <code>str</code>이다. 
+- <code>String</code> 타입은 핵심 언어 기능 내에 구현된 것이 아니고 러스트의 표준 라이브러리를 통해 제공되며, 커질 수 있고, 가변적이며, 소유권을 갖고 있고, UTF-8로 인코딩된 스트링 타입이다. 
+- 러스트인들이 "스트링"에 대해 이야기할 때, 보통 <code>String</code>과 스트링 슬라이스 <code>&str</code> 타입 둘 모두를 이야기한 것이다. -> 두 타입 모두 러스트 표준 라이브러리에서 매우 많이 사용되며 <code>String</code>과 <code>스트링 슬라이스</code> 모두 UTF-8로 인코딩되어 있다. 
+
+### 다양한 러스트의 String 표준 라이브러리 
+- 러스트 표준 라이브러리는 <code>OsString</code>, <code>OsStr</code>, <code>CString</code>, <code>CStr</code>과 같은 몇가지 다른 스트링 타입도 제공한다. 심지어 어떤 라이브러리 크레이트들은 스트링 데이터를 저장하기 위해 더 많은 옵션을 제공한다. 
+- <code>*String / *Str</code>이라는 작명과 유사하게, 이들은 종종 소유권이 있는 타입과 이를 빌린 변형 타입을 제공하는데, 이는 <code>String / &Str</code>과 비슷합니다. 이러한 스트링 타입들은, 예를 들면 다른 종류의 인코딩이 된 텍스트를 저장하거나 다른 방식으로 메모리에 저장될 수 있다. 
+
+### 새로운 스트링 생성하기 
+
+```rust
+let mut s = String::new();
+```
+- 다음과 같이 생성할 수 있다. -> s라는 변형 가능한 빈 스트링을 만들어 준다. 
+
+```rust
+let data = "initial contents";
+
+let s = data.to_string();
+
+// the method also works on a literal directly:
+let s = "initial contents".to_string();
+```
+- 다음과 같이 초기값을 갖게 생성할 수도 있다. 
+
+```rust
+let s = String::from("initial contents");
+```
+
+- 혹은 다음과 같이 스트링 리터럴로부터 <code>String</code>을 생성하기 위해 <code>String:from</code>함수를 이용할 수도 있다. 
+
+> 참고로 스트링이 UTF-8로 인코딩되어 있어서 어떠한 텍스트 데이터라도 포함할 수 있다. (한국어도 당연히 포함되어 있다.) 
+
+### 스트링 갱신하기 
+
+1. <code>push_str</code>과 <code>push</code>을 이용하여 스트링 추가하기 
+
+```rust
+let mut s1 = String::from("foo");
+let s2 = "bar";
+s1.push_str(&s2);
+println!("s2 is {}", s2); // foo bar
+```
+
+```rust
+let mut s = String::from("lo");
+s.push('l'); /// lol
+```
+
+2. <code>+</code> 연산자나 <code>format!</code> 매크로를 이용한 접합
+
+```rust
+let s1 = String::from("Hello, ");
+let s2 = String::from("world!");
+let s3 = s1 + &s2; // s1은 여기서 이동되어 더이상 쓸 수 없음, Hello, world!
+```
+
+```rust
+let s1 = String::from("tic");
+let s2 = String::from("tac");
+let s3 = String::from("toe");
+
+let s = s1 + "-" + &s2 + "-" + &s3; // tic-tac-toe
+```
+
+```rust
+let s1 = String::from("tic");
+let s2 = String::from("tac");
+let s3 = String::from("toe");
+
+let s = format!("{}-{}-{}", s1, s2, s3); // tic-tac-toe
+                                         // 이렇게 하면 읽기도 쉽고,  어떠한 파라미터들의 소유권도 가져가지 않으므로 추천하는 방식이다.
+```
+
+</details>
