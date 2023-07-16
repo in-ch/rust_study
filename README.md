@@ -36,6 +36,8 @@ https://rinthel.github.io/rust-lang-book-ko/
 
 [8.1 벡터](#81-벡터)
 
+[8.2 스트링](#82-스트링)
+
 ## 3.1 변수와 가변성
 <details>
     <summary>자세히 보기</summary>
