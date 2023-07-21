@@ -38,6 +38,8 @@ https://rinthel.github.io/rust-lang-book-ko/
 
 [8.2 스트링](#82-스트링)
 
+[8.3 해쉬맵](#83-해쉬맵)
+
 ## 3.1 변수와 가변성
 <details>
     <summary>자세히 보기</summary>
@@ -1949,5 +1951,61 @@ let s3 = String::from("toe");
 let s = format!("{}-{}-{}", s1, s2, s3); // tic-tac-toe
                                          // 이렇게 하면 읽기도 쉽고,  어떠한 파라미터들의 소유권도 가져가지 않으므로 추천하는 방식이다.
 ```
+
+</details>
+
+## 8.3 해쉬맵
+
+<details>
+    <summary>자세히 보기</summary>
+
+- <code>HashMap<K, V></code> 타입은 K 타입의 키에 V 타입의 값을 매핑한 것을 저장한다. 이 매핍은 해쉬 함수을 통해 동작하는데, 해쉬 함수는 이 키와 값을 메모리 어디에 저장할지 결정한다. 
+- 해쉬맵은 벡터를 이용하듯 인덱스를 이용하는 것이 아니라 임의의 타입으로 된 키를 이용하여 데이터를 찾기를 원할때 유용하다. 
+
+### 새로운 해쉬맵 생성하기 
+
+```rust
+use std::collections::HashMap;
+
+let mut scores = HashMap::new();
+
+scores.insert(String::from("Blue"), 10);
+scores.insert(String::from("Yellow"), 50);
+```
+
+- 먼저 표준 라이브러리의 컬렉션 부분으로부터 <code>HashMap</code>을 <code>use</code>로 가져와야 한다. 
+- 이 방법은 덜 자주 사용된다. 
+- 벡터와 마찬가지로, 해쉬맵도 데이터를 힙에 저장한다. 이 <code>HsashMap</code>은 String 타입의 키와 i32 타입의 값을 갖는다. -> 벡터와 비슷하게 해쉬맵도 동질적이다: 모든 키는 같은 타입이어야 하고, 모든 값도 같은 타입이여야 한다.
+
+- 해쉬맵을 생성하는 또다른 방법은 튜플의 벡터에 대해 collect 메소드를 사용하는 것인데, 이 벡터의 각 튜플은 키와 키에 대한 값으로 구성되어 있다. 
+- <code>collect</code> 메소드는 데이터를 모아서 <code>HashMap</code>을 포함한 여러 컬렉션 타입으로 만들어 준다.
+
+```rust
+use std::collections::HashMap;
+
+let teams  = vec![String::from("Blue"), String::from("Yellow")];
+let initial_scores = vec![10, 50];
+
+let scores: HashMap<_, _> = teams.iter().zip(initial_scores.iter()).collect();
+```
+- 타입 명시 <code>HashMap<_, _></code>이 필요한데 이는 <code>collect</code>가 다른 많은 데이터 구조로 바뀔 수 있고, 러스트는 특정하지 않으면 어떤 것을 원하는지 모르기 때문이다. 
+
+### 해쉬맵과 소유권
+- <code>i32</code>와 같이 <code>Copy</code> 트레잇을 구현한 타입에 대하여, 그 값들은 해쉬맵 안으로 복사된다. <code>String</code>과 같이 소유권 값들에 대해서는, 아래의 같이 값들이 이동되어 해쉬맵이 그 값들에 대한 소유자가 될 것이다. 
+
+```rust
+use std::collections::HashMap;
+
+let field_name = String::from("Favorite color");
+let field_value = String::from("Blue");
+
+let mut map = HashMap::new();
+map.insert(field_name, field_value);
+// field_name과 field_value은 이 지점부터 유효하지 않습니다.
+// 이들을 이용하는 시도를 해보고 어떤 컴파일러 에러가 나오는지 보세요!
+```
+
+- <code>insert</code>를 호출하여 <code>field_name</code>과 <code>field_value</code>를 해쉬맵으로 이동시킨 후에는 더 이상 이 둘을 사용할 수 없다. 
+- 만일 우리가 해쉬맵에 값들의 참조자들을 삽입한다면, 이 값들은 해쉬맵으로 이동되지 않을 것이다. 하지만 참조자가 가리키고 있는 값은 해쉬맵이 유효할 때까지 계속 유효해야 한다.
 
 </details>
