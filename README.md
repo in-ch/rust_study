@@ -2001,11 +2001,124 @@ let field_value = String::from("Blue");
 
 let mut map = HashMap::new();
 map.insert(field_name, field_value);
-// field_name과 field_value은 이 지점부터 유효하지 않습니다.
-// 이들을 이용하는 시도를 해보고 어떤 컴파일러 에러가 나오는지 보세요!
+// field_name과 field_value은 이 지점부터 유효하지 않는다.
+// 이들을 이용하는 시도를 해보고 어떤 컴파일러 에러가 나오는지 확인.
 ```
 
 - <code>insert</code>를 호출하여 <code>field_name</code>과 <code>field_value</code>를 해쉬맵으로 이동시킨 후에는 더 이상 이 둘을 사용할 수 없다. 
 - 만일 우리가 해쉬맵에 값들의 참조자들을 삽입한다면, 이 값들은 해쉬맵으로 이동되지 않을 것이다. 하지만 참조자가 가리키고 있는 값은 해쉬맵이 유효할 때까지 계속 유효해야 한다.
+
+### 해쉬맵 내의 값 접근하기 
+
+- <code>get</code>메서드에 키를 제공하여 해쉬맵으로부터 값을 얻어올 수 있다.
+
+```rust
+use std::collections::HashMap;
+
+let mut scores = HashMap::new();
+
+scores.insert(String::from("Blue"), 10);
+scores.insert(String::from("Yellow"), 50);
+
+let team_name = String::from("Blue");
+let score = scores.get(&team_name);
+```
+
+- 여기서 <code>score</code>는 블루 팀과 연관된 값을 가지고 있을 것이고, 결과값은 <code>Some(&10)</code>일 것이다. 결과값은 <code>Some</code>으로 감싸져 있는데 왜냐하면 <code>get</code>이 <code>Option<&V></code>를 반환하기 때문이다. 만일 해쉬맵 내에 해당 키에 대한 값이 없다면 <code>get</code>은 <code>None</code>을 반환한다. 
+
+- 벡터에서 했던 방법과 유사한 식으로 <code>for</code> 루프를 이용하여 해쉬맵에서도 각각의 키/값 쌍에 대한 반복작업을 할 수 있다.
+
+```rust
+use std::collections::HashMap;
+
+let mut scores = HashMap::new();
+
+scores.insert(String::from("Blue"), 10);
+scores.insert(String::from("Yellow"), 50);
+
+for (key, value) in &scores {
+    println!("{}: {}", key, value);
+}
+```
+
+이 코드의 결과값은 다음과 같다. 
+
+```rust
+Yellow: 50
+Blue: 10
+```
+
+### 해쉬맵 갱신하기 
+
+- 키와 값의 개수가 증가할 수 있을지라도, 각각의 개별적인 키는 한번에 연관된 값 하나만을 가질 수 있다. 
+- 해쉬맵 내의 데이터를 변경하길 원한다면, 키에 이미 값이 할당되어 있을 경우에 대한 처리를 어떻게 할지 결정해야 한다. 
+- 값을 덮어쓸 수도 있고 새 값을 추가할 수도 있고, 두 개를 조합할 수도 있다. 
+
+1. 값을 덮어쓰기 
+
+- 만일 해쉬맵에 키와 값을 삽입하고, 그 후 똑같은 키에 다른 값을 삽입하면, 키에 연관지어진 값은 새 값으로 대신될 것이다. 
+- 아래 예제에서는 <code>insert</code>를 두 번 호출함에도, 해쉬맵은 딱 하나의 키/값 쌍을 담게 될 것인데 그 이유는 두 번 모두 블루 팀의 키에 대한 값을 삽입하고 있기 떄문이다. 
+
+```rust
+use std::collections::HashMap;
+
+let mut scores = HashMap::new();
+
+scores.insert(String::from("Blue"), 10);
+scores.insert(String::from("Blue"), 25);
+
+println!("{:?}", scores);
+
+// 결과값, 원래 값 10은 덮여쓰여 진다. 
+{"Blue": 25}
+```
+
+2. 키에 할당된 값이 없을 경우에만 삽입하기 
+
+- 특정 키가 값을 가지고 있는지 검사하고, 만일 가지고 있지 않다면 이 키에 대한 값을 삽입하고자 하는 경우 <code>entry</code>라고 하는 것을 사용해야 한다. 이는 우리가 검사하고자 하는 키를 파라미터로 받는다. <code>entry</code>함수의 리턴값은 열거형 <code>Entry</code>인데, 해당 키가 있는지 혹은 없는지를 나타낸다. 
+
+```rust
+use std::collections::HashMap;
+
+let mut scores = HashMap::new();
+scores.insert(String::from("Blue"), 10);
+
+scores.entry(String::from("Yellow")).or_insert(50);
+scores.entry(String::from("Blue")).or_insert(50);
+
+println!("{:?}", scores);
+
+/// 결과값 
+{"Yellow": 50, "Blue": 10} 
+```
+
+3. 예전 값을 기초로 값을 갱신하기 
+
+- 해쉬맵에 대한 또다른 흔한 사용 방식은 키에 대한 값을 찾아서 예전 값에 기초하여 값을 갱신하는 것이다. 
+- 아래 코드는 해쉬맵을 이용하여 해당 단어가 몇번이나 나왔는지를 유지하기 위해 값을 증사키니는 코드이다. 만일 처음 본 것이라면 0을 넣을 것이다.
+
+```rust
+use std::collections:HashMap;
+
+let text = "hello world wonderful world";
+
+let mut map = HashMap::new();
+
+for word in text.split_whitespace() {
+    let count - map.entry(word).or_insert(0);
+    *count += 1;
+}
+
+println!("{:?}", map);
+
+/// 결과 
+{"world": 2, "hello": 1, "wonderful": 1}
+```
+
+- 여기서 <code>or_insert</code> 메소드는 실제로는 해당 키에 대한 값의 가변 참조자 <code>(&mut V)</code>를 반환한다. 여기서는 <code>count</code> 변수에 가변 참조자를 저장하였고, 여기에 값을 할당하기 위해 먼저 애스터리스크 <code>(*)</code>를 사용하여 <code>count</code>를 역참조해야 한다. 가변 참조자는 <code>for</code> 루프의 끝에서 스코프 밖으로 벗어나고, 따라서 모든 값들의 변경은 안전하며 빌림 규칙에 위배되지 않는다. 
+
+
+
+
 
 </details>
