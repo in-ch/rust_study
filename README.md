@@ -40,6 +40,8 @@ https://rinthel.github.io/rust-lang-book-ko/
 
 [8.3 해쉬맵](#83-해쉬맵)
 
+[9.1 panic!과 함께하는 복구 불가능한 에러](#91-panic과-함께하는-복구-불가능한-에러)
+
 ## 3.1 변수와 가변성
 <details>
     <summary>자세히 보기</summary>
@@ -2143,3 +2145,56 @@ println!("{:?}", map);
 
   러스트는 예외 처리 기능이 없다. 대신 복구 가능한 에러를 위한 <code>Result<T, E></code>값과 복구 불가능한 에러가 발생했을 때 실행을 멈추는 <code>panic!</code> 매크로를 가지고 있다. 
     이번 장에서는 <code>panic!</code>을 호출하는 것을 먼저 다룬 뒤, <code>Result<T, E></code>값을 반환하는 것에 대해 이야기 한다. 추가로, 에러로부터 복구를 시도할지 아니면 실행을 멈출지를 결정할 때 고려할 것에 대해 탐구해 보겠다. 
+
+## 9.1 panic!과 함께하는 복구 불가능한 에러
+
+<details>
+    <summary>자세히 보기</summary>
+
+> 에러 통제를 위해 rust는 <code>panic!</code> 매크로를 가지고 있다. 이 매크로가 실행되면, 프로그램은 실패 메세지를 출력하고, 스택을 되감고 청소하고, 그 후 종료된다. 
+  이런 일이 발생하는 가장 흔한 상황은 어떤 종류의 버그가 발견되었고 프로그래머가 이 에러를 어떻게 처리할지가 명확하지 않을 때이다. 
+
+### panic!엥 응하여 스택을 되감거나 그만두기
+
+> 기본적으로, panic!이 발생하면, 프로그램은 되감기(unwinding) 를 시작하는데, 이는 러스트가 패닉을 마주친 각 함수로부터 스택을 거꾸로 훑어가면서 데이터를 제거한다는 뜻이지만, 이 훑어가기 및 제거는 일이 많다.  
+  다른 대안으로는 즉시 <code>그만두기(abort)</code> 가 있는데, 이는 데이터 제거 없이 프로그램을 끝내는 것이다. 프로그램이 사용하고 있던 메모리는 운영체제에 의해 청소될 필요가 있을 것이다. 프로젝트 내에서 결과 바이너리가 가능한 작아지기를 원한다면, Cargo.toml 내에서 적합한 [profile] 섹션에 <code>panic = 'abort'</code>를 추가함으로써 되감기를 그만두기로 바꿀 수 있다. 
+  예를 들면, 릴리즈 모드 내에서는 패닉 상에서 그만두기를 쓰고 싶다면, 다음을 추가하면 된다.
+
+  ```rust
+  [profile.release]
+  panic = 'abort'
+  ```
+
+ex) 단순한 프로그램 내에서 <code>panic!</code>호출하기
+
+```rust
+fn main() {
+    panic!("crash and burn");
+}
+```
+
+- 이 프로그램을 실행하면, 다음과 같은 것을 보게 된다. 
+
+```
+$ cargo run
+   Compiling panic v0.1.0 (file:///projects/panic)
+    Finished dev [unoptimized + debuginfo] target(s) in 0.25 secs
+     Running `target/debug/panic`
+thread 'main' panicked at 'crash and burn', src/main.rs:2
+note: Run with `RUST_BACKTRACE=1` for a backtrace.
+error: Process didn't exit successfully: `target/debug/panic` (exit code: 101)
+```
+
+### panic! 백트레이스 사용하기 
+> 다음을 통해 직접 매크로를 호출하는 대신 코드의 버그 때문에 <code>panic!</code>호출이 라이브러리로부터 발생될 때는 어떻게 되는지 본다. 
+
+```rust
+fn main() {
+    let v = vec![1, 2, 3];
+
+    v[99];
+}
+```
+
+
+</details>
