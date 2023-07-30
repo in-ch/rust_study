@@ -2195,6 +2195,25 @@ fn main() {
     v[99];
 }
 ```
+> 여기서 벡터의 100번째 요소에 접근하기를 시도하지만 벡터는 3개의 요소만 가지고 있다. 이러면 러스트는 패닉을 일으킬 것이다. 
+> 여기서 C같은 경우는 백터 내에 해당 요소와 상응하는 위치의 메모리에 들어 있는 무언가를 얻을 것이다. (설령 그 메모리 영역이 벡터 소유가 아닐지라도) -> 이것을 <code>오버리드(buffer overread)</code>라고 부른다. 
+  러스트는 이러한 종류의 취약점으로 보호하기 위해 실행을 멈추고 계속하기를 거부할 것이다. 
+
+```rust
+$ cargo run
+   Compiling panic v0.1.0 (file:///projects/panic)
+    Finished dev [unoptimized + debuginfo] target(s) in 0.27 secs
+     Running `target/debug/panic`
+thread 'main' panicked at 'index out of bounds: the len is 3 but the index is
+100', /stable-dist-rustc/build/src/libcollections/vec.rs:1362
+note: Run with `RUST_BACKTRACE=1` for a backtrace.
+error: Process didn't exit successfully: `target/debug/panic` (exit code: 101)
+```
+- 위 에러는 우리가 작성하지 않은 파일인 libcollections/vec.ts를 가리키고 있다. 이는 표준 라이브러리 내에 있는 <code>Vec<T></code>의 구현 부분이다. 우리가 벡터 v에 []를 사용할 때 실행되는 코드는 libcollections/vec.rs안에 있으며, 그곳이 바로 <code>panic!</code>이 실제 발생한 곳이다. 
+
+- 그 다음 노트는 <code>RUST_BACKTRACE</code>환경 변수를 설정하여 에러의 원인이 된 것이 무엇인지 정확하게 백트레이스할 수 있다고 말해주고 있다. <code>백트레이스(backtrace)</code>란 어떤 지점에 도달하기까지 호출해온 모든 함수의 리스트를 말한다. 
+- <code>백트레이스(backtrace)</code>를 읽는 요령은 위에서부터 시작하여 우리가 작성한 파일이 보일 때까지 읽는 것이다. 그곳이 바로 문제를 일으킨 지점이다. 
+
 
 
 </details>
