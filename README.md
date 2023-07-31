@@ -42,6 +42,8 @@ https://rinthel.github.io/rust-lang-book-ko/
 
 [9.1 panic!과 함께하는 복구 불가능한 에러](#91-panic과-함께하는-복구-불가능한-에러)
 
+[9.2 Result와 함께하는 복구 가능한 에러](#92-result와-함께하는-복구-가능한-에러)
+
 ## 3.1 변수와 가변성
 <details>
     <summary>자세히 보기</summary>
@@ -2214,6 +2216,79 @@ error: Process didn't exit successfully: `target/debug/panic` (exit code: 101)
 - 그 다음 노트는 <code>RUST_BACKTRACE</code>환경 변수를 설정하여 에러의 원인이 된 것이 무엇인지 정확하게 백트레이스할 수 있다고 말해주고 있다. <code>백트레이스(backtrace)</code>란 어떤 지점에 도달하기까지 호출해온 모든 함수의 리스트를 말한다. 
 - <code>백트레이스(backtrace)</code>를 읽는 요령은 위에서부터 시작하여 우리가 작성한 파일이 보일 때까지 읽는 것이다. 그곳이 바로 문제를 일으킨 지점이다. 
 
+</details>
 
+## 9.2 Result와 함께하는 복구 가능한 에러
+
+<details>
+    <summary>자세히 보기</summary>
+
+- 우리가 어떤 파일을 여는데 해당 파일이 존재하지 않아서 연산에 실패했다면, 프로세스를 멈추는 대신 파일을 새로 만드는 것을 원할지도 모른다. 
+
+```rust
+enum Result<T, E> {
+    Ok(T),
+    Err(E),
+}
+```
+- <code>T</code>와 <code>E</code>는 제네릭 타입 파라미터이다. ->  <code>T</code>는 성공한 경우에 <code>Ok variant</code> 내에 반환될 값의 타입을 나타내고 <code>E</code>는 실패한 경우에 <code>Err variant</code> 내에 반환될 에러의 타입을 나타낸다. 
+- <code>Result</code>가 이러한 제네릭 타입 파라미터를 갖기 때문에, 우리가 반환하고자 하는 성공적인 값과 에러 값이 다를 수 있는 다양한 상황 내에서 표준 라이브러리에 정의된 <code>Result</code> 타입과 함수들을 사용할 수 있다.
+
+- 아래 예제에서 실패할 수도 있기 때문에 <code>Result</code>값을 반환하는 함수를 호출해 본다. 
+
+```rust
+use std::fs::File;
+
+fn main() {
+    let f:u32 = File::open("hello.txt");
+}
+```
+> 다음과 같이하고 컴파일을 시도한다면 다음 메세지가 나타난다.
+
+```rust
+error[E0308]: mismatched types
+ --> src/main.rs:4:18
+  |
+4 |     let f: u32 = File::open("hello.txt");
+  |                  ^^^^^^^^^^^^^^^^^^^^^^^ expected u32, found enum
+`std::result::Result`
+  |
+  = note: expected type `u32`
+  = note:    found type `std::result::Result<std::fs::File, std::io::Error>`
+```
+> 위의 에러는 <code>File::open</code> 함수의 반환 타입이 <code>Result<T,E></code>라는 것을 알려준다. 여기서 제네릭 파라미터 <code>T</code>는 성공값의 타입인 <code>std::fs::File</code>로 채워져 있는데, 이것은 파일 핸들이다. 에러에 사용되는 <code>E</code>의 타입은 <code>std::io::Error</code> -> 이 반환 타입은 <code>File::open</code>을 호출하는 것이 성공하여 우리가 읽거나 쓸 수 있는 파일 핸들을 반환해 줄 수도 있다는 뜻이다. -> 함수 호출은 또한 실패할 수도 있다.
+
+> <code>File::open</code>이 성공한 경우, 변수 <code>f</code>가 가지게 될 값은 파일 핸들을 담고 있는 <code>Ok</code> 인스턴스가 될 것이다. 실패한 경우, <code>f</code>의 값은 발생한 에러의 종류에 대한 더 많은 정보를 가지고 있는 <code>Err</code>의 인스턴스가 될 것이다. 
+
+- 다음 예제는 <code>File::open</code>이 반환하는 값에 따라 다른 행동을 취하는 코드를 추가할 필요가 있다. -> <code>match</code>표현식을 이용하여 <code>Result</code>를 처리하는 한 가지 방법을 보여준다. 
+
+```rust
+use std::fs::File;
+
+fn main() {
+    let f = File::open("hello.txt");
+
+    let f = match f {
+        Ok(file) => file,
+        Err(error) => {
+            panic!("There was a problem opening the file: {:?}", error)
+        },
+    };
+}
+```
+
+- <code>Option</code> 열거형과 같이 <code>Result</code> 열거형과 <code>variant</code>들은 <code>프렐루드(prelude)</code>로부터 가져와진다는 점을 기억해야 한다. 따라서 <code>match</code>의 각 경우에 대해서 <code>Ok</code>와 <code>Err</code> 앞에 <code>Result::</code>를 특정하지 않아도 된다.
+
+- 여기서 우리는 러스트에게 결과가 <code>Ok</code>일 때에는 <code>Ok variant</code>로부터 내부의 <code>file</code> 값을 반환하고, 이 파일 핸들 값을 변수 <code>f</code>에 대입한다고 말해주고 있다. <code>match</code> 이후에는 읽거나 쓰기 위해 이 파일 핸들을 사용할 수 있다.
+
+- <code>match</code>의 다른 경우는 <code>File::open</code>으로부터 <code>Err</code>를 얻은 경우를 처리한다. 
+
+- 이 예제에서 hello.txt라는 이름의 파일이 없는데 이 코드를 실행하게 되면, <code>panic!</code> 매크로로부터 다음과 같은 호출을 보게 될 것이다 .
+
+```rust
+thread 'main' panicked at 'There was a problem opening the file: Error { repr:
+Os { code: 2, message: "No such file or directory" } }', src/main.rs:9:12
+```
+- 늘 그렇듯 에러가 발생했다...
 
 </details>
