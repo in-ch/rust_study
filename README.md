@@ -2291,4 +2291,50 @@ Os { code: 2, message: "No such file or directory" } }', src/main.rs:9:12
 ```
 - 늘 그렇듯 에러가 발생했다...
 
+### 서로 다른 에러에 대해 매칭하기 
+
+- <code>File:open</code>이 실패한 이유가 무엇이든 간에 <code>panic!</code>을 일으킬 것이다. 대신 우리가 원하는 것은 실패 이유에 따라 다른 행동을 취해야 한다. <code>File:open</code>이 실패한 것이라면, 새로운 파일을 만들어서 핸들을 반환해보자. 만일 그 밖의 이유로 <code>File:open</code>이 실패한 거라면, 예를 들어 파일을 열 권한이 없어서라면 마찬가지로 <code>panic!</code>을 일으키고 한다. <code>match</code>에 새로운 경우를 추가한 예제를 작성한다. 
+
+```rust
+use std::fs::File;
+use std::io::ErrorKind;
+
+fn main() {
+    let f = File::open("hello.txt");
+
+    let f = match f {
+        Ok(file) => file,
+        Err(ref error) if error.kind() == ErrorKind::NotFound => {
+            match File::create("hello.txt") {
+                Ok(fc) => fc,
+                Err(e) => {
+                    panic!(
+                        "Tried to create file but there was a problem: {:?}",
+                        e
+                    )
+                },
+            }
+        },
+        Err(error) => {
+            panic!(
+                "There was a problem opening the file: {:?}",
+                error
+            )
+        },
+    };
+}
+```
+
+- <code>Err variant</code> 내에 있는 <code>File::open</code>이 반환하는 값의 타입은 <code>io::Error</code>인데, 이는 표준 라이브러리에서 제공하는 구조체이다. 이 구조체는 <code>kind</code> 메소드를 제공하는데 이를 호출하여 <code>io:ErrorKind</code> 값을 얻을 수 있다. 
+
+- <code>io::ErrorKind</code>는 io 연산으로부터 발생할 수 있는 여러 종류의 에러를 표현하는 <code>variant</code>를 가진, 표준 라이브러리에서 제공하는 열거형이다. 우리가 사용하고자 하는 <code>variant</code>는 <code>ErrorKind::NotFound</code>인데, 이는 열고자 하는 파일이 아직 존재하지 않음을 나타낸다.
+
+- 조건문 <code>if error.kind() == ErrorKind::NotFound</code>는 매치 가드(match guard) 라고 부른다: 이는 <code>match</code> 줄기 상에서 줄기의 패턴을 좀 더 정제해주는 추가 조건문이다.
+
+- 그 줄기의 코드가 실행되기 위해서는 이 조건문이 참이어야 한다; 그렇지 않다면, 패턴 매칭은 <code>match</code>의 다음 줄기에 맞춰보기 위해 이동할 것이다. 패턴에는 <code>ref</code>가 필요하며 그러므로써 <code>error</code>가 가드 조건문으로 소유권 이동이 되지 않고 그저 참조만 된다. 패턴 내에서 참조자를 얻기 위해 <code>&</code> 대신 <code>ref</code>가 사용되는 이유는 <code>&</code>는 참조자를 매치하고 그 값을 제공하지만, <code>ref</code>는 값을 매치하여 그 참조자를 제공한다. 
+
+- 매치 가드 내에서 확인하고자 하는 조건문은 <code>error.kind()</code>에 의해 반환된 값이 <code>ErrorKind</code> 열거형의 <code>NotFound</code> variant인가 하는 것이다. 만일 그렇다면 <code>File:create</code>로 파일 생성을 시도한다. 그러나 <code>File::create</code> 또한 실패할 수 있기 때문에, 안쪽에 <code>match</code> 구문을 바깥쪽과 마찬가지로 추가할 필요가 있다. 파일이 열 수 없을 때, 다른 에러 메세지가 출력될 것이다. 바깥쪽 <code>match</code>의 마지막 갈래는 똑같이 남아서, 파일을 못 찾는 에러 외에 다른 어떤 에러에 대해서도 패닉을 일으킨다. 
+
+
+
 </details>
