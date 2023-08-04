@@ -2335,6 +2335,81 @@ fn main() {
 
 - 매치 가드 내에서 확인하고자 하는 조건문은 <code>error.kind()</code>에 의해 반환된 값이 <code>ErrorKind</code> 열거형의 <code>NotFound</code> variant인가 하는 것이다. 만일 그렇다면 <code>File:create</code>로 파일 생성을 시도한다. 그러나 <code>File::create</code> 또한 실패할 수 있기 때문에, 안쪽에 <code>match</code> 구문을 바깥쪽과 마찬가지로 추가할 필요가 있다. 파일이 열 수 없을 때, 다른 에러 메세지가 출력될 것이다. 바깥쪽 <code>match</code>의 마지막 갈래는 똑같이 남아서, 파일을 못 찾는 에러 외에 다른 어떤 에러에 대해서도 패닉을 일으킨다. 
 
+### 에가 났을 때 패닉을 위한 숏컷: unwrap과 expect
+- <code>match</code>의 사용은 충분히 잘 동작하지만, 의도를 항상 잘 전달하는 게 아니다. <code>Result<T, E></code>타입은 다양한 작업을 하기 위해 정의된 수많은 헬퍼 메소드를 가지고 있다. 그 중 하나인 <code>unwrap</code>이라 부르는 메소드는 <code>match</code>구문과 비슷한 구현을 한 숏컷 메소드이다. 
+- 만일 <code>Result</code>값이 Ok variant라면, <code>unwrap</code>은 Ok 내의 값을 반환할 것이다. 만일 <code>Result</code>가 Err variant라면, <code>unwrap</code>은 우리를 위해 <code>panic!</code> 매크로를 호출할 것이다. -> 아래 예제는 <code>unwrap</code>이 작동하는 예이다.
+
+```rust
+use std::fs::File;
+
+fn main() {
+    let f = File::open("hello.txt").unwrap();
+}
+```
+> 여기서 hello.txt 파일이 없는 상태에서 이 코드를 실행시키면, <code>unwrap</code>메소드에 의한 <code>panic!</code> 호출로부터의 에러 메세지를 보게 될 것이다. 
+
+```rust
+thread 'main' panicked at 'called `Result::unwrap()` on an `Err` value: Error {
+repr: Os { code: 2, message: "No such file or directory" } }',
+/stable-dist-rustc/build/src/libcore/result.rs:868
+```
+> 또 다른 메소드인 <code>expect</code>는 <code>unwrap</code>과 유사한데, 우리가 <code>panic!</code> 에러 메시지를 선택할 수 있게 해준다. 
+  <code>unwrap</code> 대신 <code>expect</code>를 이용하고 좋은 에러 메세지를 제공하는 것은 의도를 전달해주고 패닉의 근원을 추적하는 걸 쉽게 해줄 수 있을 것이다. 
+
+- 아래는 <code>expect</code>의 예제이다. 
+
+```rust
+use std::fs::File;
+
+fn main() {
+    let f = File::open("hello.txt").expect("Failed to open hello.txt");
+}
+```
+> <code>expect</code>는 <code>unwrap</code>과 같은 식으로 사용한다.
+  <code>expect</code>가 <code>panic!</code> 호출에 사용하는 에러 메세지는 <code>unwrap</code>이 사용하는 기본 <code>panic!</code> 메세지보다는 <code>expect</code>에 넘기는 파라미터로 설정될 것이다.
+
+```rust
+thread 'main' panicked at 'Failed to open hello.txt: Error { repr: Os { code:
+2, message: "No such file or directory" } }',
+/stable-dist-rustc/build/src/libcore/result.rs:868
+```
+
+- 이 에러 메세지는 우리가 특정한 텍스트인 <code>Failed to open hello.txt</code>로 시작하기 때문에, 이 에러 메세지가 어디서부터 왔는지를 코드 내에서 찾기가 더 수월해질 것이다. 
+  만일 우리가 여러 군대에 <code>unwrap</code>을 사용하면, 정확히 어떤 <code>unwrap</code>이 패닉을 일으켰는지 찾기에 더 많은 시간이 걸릴 수 있는데, 그 이유는 패닉을 호출하는 모든 <code>unwrap</code>이 동일한 메세지를 출력하기 때문이다.
+
+### 에러 전파하기 
+- 실패할지도 모르는 무언가를 호출하는 구현을 가진 함수를 작성할 때, 이 함수 내에서 에러를 처리하는 대신, 에러를 호출하는 코드 쪽으로 반환하여 그쪽에서 어떻게 할지 결정하도록 할 수 있다. 
+  이는 <code>에러 전파하기</code>로 알려져 있으며, 에러가 어떻게 처리해야 좋을지 좌우해야 할 상황에서, 우리의 코드 내용 내에서 이용 가능한 것들보다 더 많은 정보와 로직을 가지고 있을 수도 있는 호출하는 코드 쪽에 더 많은 제어권을 준다.
+- 예시 -> 파일로부터 사용자 이름을 읽는 함수를 작성한 것이다. 만일 파일이 존재하지 않거나 읽을 수 없다면, 이 함수는 호출하는 코드 쪽으로 해당 에러를 반환할 것이다.
+
+```rust
+use std::io;
+use std::io::Read;
+use std::fs::File;
+
+fn read_username_from_file() -> Result<String, io::Error> {
+    let f = File::open("hello.txt");
+
+    let mut f = match f {
+        Ok(file) => file,
+        Err(e) => return Err(e),
+    };
+
+    let mut s = String::new();
+
+    match f.read_to_string(&mut s) {
+        Ok(_) => Ok(s),
+        Err(e) => Err(e),
+    }
+}
+```
+
+1. 함수의 반환 타입부터 먼저 살펴본다.: <code>Result<String, io::Error>.</code> 이는 함수가 <code>Result<T, E></code> 타입의 값을 반환하는데 제네릭 파라미터 T는 구체적 타입(concrete type)인 <code>String</code>로 채워져 있고, <code>제네릭 타입 E</code>는 구체적 타입인 <code>io::Error</code>로 채워져 있다. 
+2. 만일 이 함수가 어떤 문제 없이 성공하면, 함수를 호출한 코드는 String을 담은 값을 받을 것이다.-> 이 함수가 파일로부터 읽어들인 사용자 이름이다. 만일 어떤 문제가 발생한다면, 이 함수를 호출한 코드는 문제가 무엇이었는지에 대한 더 많은 정보를 담고 있는 <code>io::Error</code>의 인스턴스를 담은 <code>Err</code> 값을 받을 것이다.
+3. 이 함수의 반환 타입으로서 <code>io::Error</code>를 선택했는데, 그 이유는 우리가 이 함수 내부에서 호출하고 있는 실패 가능한 연산 두 가지가 모두 이 타입의 에러 값을 반환하기 때문 -> <code>File::open</code> 함수와 <code>read_to_string</code> 메소드
+
+- 러스트에서 에러를 전파하는 패턴은 너무 흔하여 러스트에서는 이를 더 쉽게 해주는 물음표 연산자 <code>?</code>를 제공한다. 
+
 
 
 </details>
