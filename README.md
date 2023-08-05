@@ -2410,6 +2410,59 @@ fn read_username_from_file() -> Result<String, io::Error> {
 
 - 러스트에서 에러를 전파하는 패턴은 너무 흔하여 러스트에서는 이를 더 쉽게 해주는 물음표 연산자 <code>?</code>를 제공한다. 
 
+### 에러를 전파하기 위한 숏컷: ? 
 
+> 위에 연산자를 알아보기 위해 예제를 준비했음. 
+  <code>read_username_from_file</code>의 구현을 보여주는데, 다만 이 구현은 물음표 연산자를 이용하고 있다.
+  <code>?<code>는 많은 수의 보일러플레이트(boilerplate)를 제거해주고 함수의 구현을 더 단순하게 만들어 준다.
+
+```rust
+use std::io;
+use std::io::Read;
+use std::fs::File;
+
+fn read_username_from_file() -> Result<String, io::Error> {
+    let mut s = String::new();
+
+    File::open("hello.txt")?.read_to_string(&mut s)?;
+
+    Ok(s)
+}
+```
+
+- <code>f</code> 변수를 만드는 대신, <code>File::open("hello.txt")?</code>의 결과 바로 뒤에 <code>read_to_string</code>의 호출을 연결시켰다.
+- <code>read_to_string</code> 호출의 끝에는 여전히 <code>?</code>가 남아있고, <code>File::open</code>과 <code>read_to_string</code>이 모두 에러를 반환하지 않고 성공할 때 <code>s</code> 안의 사용자 이름을 담은 <code>Ok</code>를 반환한다.
+
+### ?는 Result를 반환하는 함수에서만 사용될 수 있다. 
+
+- <code>?</code>는 <code>Result</code> 타입을 반환하는 함수에서만 사용이 가능한데, <code>match</code> 표현식과 동일한 방식으로 동작하도록 정의되어 있기 때문이다.
+- <code>Result</code> 반환 타입을 요구하는 <code>match</code> 부분은 <code>return Err(e)</code>이며, 따라서 함수의 반환 타입은 반드시 이 <code>return</code>과 호환 가능한 <code>Result</code>가 되어야 한다. 
+
+> <code>main</code>의 반환 타입이 ()라는 것을 상기하면서, 만약 <code>main</code> 함수 내에서 <code>?</code>를 사용하면 어떤 일이 생길까?
+
+```rust
+use std::fs::File;
+
+fn main() {
+    let f = File::open("hello.txt")?;
+}
+```
+- 다음과 같은 에러 메세지가 호출된다. 
+
+```rust
+error[E0277]: the `?` operator can only be used in a function that returns
+`Result` (or another type that implements `std::ops::Try`)
+ --> src/main.rs:4:13
+  |
+4 |     let f = File::open("hello.txt")?;
+  |             ------------------------
+  |             |
+  |             cannot use the `?` operator in a function that returns `()`
+  |             in this macro invocation
+  = help: the trait `std::ops::Try` is not implemented for `()`
+  = note: required by `std::ops::Try::from_error`
+```
+- 이 에러는 오직 <code>Result</code>를 반환하는 함수 내에서만 물음표 연산자를 사용할 수 있음을 지적한다. 
+- <code>Result</code>를 반환하지 않는 함수 내에서, <code>Result</code>를 반환하는 다른 함수를 호출했을 때, <code>?</code>를 사용하여 호출하는 코드에게 잠재적으로 에러를 전파하는 대신 <code>match</code>나 <code>Result</code>에서 제공하는 메소드들 중 하나를 사용하여 이를 처리할 필요가 있다.
 
 </details>
