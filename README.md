@@ -2489,6 +2489,59 @@ error[E0277]: the `?` operator can only be used in a function that returns
     2. 그 시점 이후의 코드는 이 나쁜 상태에 있지 않아야만 할 필요가 있다
     3. 사용하고 있는 타입 내에 이 정보를 집어 넣을만한 뽀족한 수가 없다.
 
+### 유효성을 위한 커스텀 타입 생성하기 
+- 러스트의 타입 시스템을 이용하여 유효한 값을 보장하는 아이디어에서 한 발 더 나가서, 유효성을 위한 커스텀 타입을 생성하는 것을 살펴본다. 
 
+- 만약 1 ~ 100까지 입력을 해야 하는데 사용자가 음수를 입력하는 것을 예제로 살펴본다. 
+
+```rust
+loop {
+    let guess: i32 = match guess.trim().parse() {
+        Ok(num) => num,
+        Err(_) => continue,
+    };
+
+    if guess < 1 || guess > 100 {
+        println!("The secret number will be between 1 and 100.");
+        continue;
+    }
+
+    match guess.cmp(&secret_number) {
+    // snip
+}
+```
+- 음수를 입력할 수 있게 <code>i32</code>로 반환값을 지정 
+>  우리는 새로운 타입을 만들어서, 유효성 확인을 모든 곳에서 반복하는 것보다는 차라리 그 타입의 인스턴스를 생성하는 함수 내에 유효성 확인을 넣을 수 있다. 
+   이 방식에서, 함수가 그 시그니처 내에서 새로운 타입을 이용하고 받은 값을 자신 있게 사용하는 것은 안전하다. 
+   <code>Guess</code>타입을 정의한다.
+
+```rust
+pub struct Guess {
+    value: u32,
+}
+
+impl Guess {
+    pub fn new(value: u32) -> Guess {
+        if value < 1 || value > 100 {
+            panic!("Guess value must be between 1 and 100, got {}.", value);
+        }
+
+        Guess {
+            value
+        }
+    }
+
+    pub fn value(&self) -> u32 {
+        self.value
+    }
+}
+```
+
+1. <code>u32</code>를 갖는 <code>value</code>라는 이름의 항목을 가진 <code>Guess</code>라는 이름의 구조체를 선언하였다. 
+2. 그런 뒤 <code>Guess</챙ㄷ> 값의 인스턴스를 생성하는 <code>new</code>라는 이름의 연관 함수를 구현한다.
+3. 만일 <code>value</code>가 이 테스트에 통과하지 못하면 <code>panic!</code>을 호출하며, 이는 이 코드를 호출하는 프로그래머에게 고쳐야 할 버그가 있음을 알려주는데, 범위 밖의 <code>value</code>를 가지고 <code>Guess</code>를 생성하는 것은 <code>Guess::new</code>가 필요로 하는 계약을 위반하기 때문이다.
+
+4. 다음으로 <code>self</code>를 빌리고, 파라미터를 갖지 않으며, <code>u32</code>를 반환하는 <code>value</code>라는 이름의 메소드를 구현한다. 이러한 종류 메서드를 종종 <code>게터(getter)</code>라고 부르는데, 그 이유는 이런 함수의 목적이 객체의 항목으로부터 어떤 데이터를 가져와서 이를 반환하는 것이기 때문이다. 
+5. 모듈 밖의 코드는 반드시 <code>Guess::new</code> 함수를 이용하여 새로운 <code>Guess</code>의 인스턴스를 만들어야 하는데, 이는 <code>Guess</code>가 <code>Guess::new</code> 함수의 조건들을 확인한 적이 없는 <code>value</code>를 갖는 방법이 없음을 보장한다.
 
 </details>
