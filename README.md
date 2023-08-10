@@ -2538,7 +2538,7 @@ impl Guess {
 ```
 
 1. <code>u32</code>를 갖는 <code>value</code>라는 이름의 항목을 가진 <code>Guess</code>라는 이름의 구조체를 선언하였다. 
-2. 그런 뒤 <code>Guess</챙ㄷ> 값의 인스턴스를 생성하는 <code>new</code>라는 이름의 연관 함수를 구현한다.
+2. 그런 뒤 <code>Guess</code> 값의 인스턴스를 생성하는 <code>new</code>라는 이름의 연관 함수를 구현한다.
 3. 만일 <code>value</code>가 이 테스트에 통과하지 못하면 <code>panic!</code>을 호출하며, 이는 이 코드를 호출하는 프로그래머에게 고쳐야 할 버그가 있음을 알려주는데, 범위 밖의 <code>value</code>를 가지고 <code>Guess</code>를 생성하는 것은 <code>Guess::new</code>가 필요로 하는 계약을 위반하기 때문이다.
 
 4. 다음으로 <code>self</code>를 빌리고, 파라미터를 갖지 않으며, <code>u32</code>를 반환하는 <code>value</code>라는 이름의 메소드를 구현한다. 이러한 종류 메서드를 종종 <code>게터(getter)</code>라고 부르는데, 그 이유는 이런 함수의 목적이 객체의 항목으로부터 어떤 데이터를 가져와서 이를 반환하는 것이기 때문이다. 
