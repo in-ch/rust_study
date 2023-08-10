@@ -2416,7 +2416,7 @@ fn read_username_from_file() -> Result<String, io::Error> {
 
 > 위에 연산자를 알아보기 위해 예제를 준비했음. 
   <code>read_username_from_file</code>의 구현을 보여주는데, 다만 이 구현은 물음표 연산자를 이용하고 있다.
-  <code>?<code>는 많은 수의 보일러플레이트(boilerplate)를 제거해주고 함수의 구현을 더 단순하게 만들어 준다.
+  <code>?</code>는 많은 수의 보일러플레이트(boilerplate)를 제거해주고 함수의 구현을 더 단순하게 만들어 준다.
 
 ```rust
 use std::io;
