@@ -46,6 +46,8 @@ https://rinthel.github.io/rust-lang-book-ko/
 
 [9.3 panic! 이냐, panic!이 아니냐, 그것이 문제로소이다.](#93-panic이냐-panic이-아니냐-그것이-문제로다)
 
+[10.1 제네릭 타입](#101-제네릭-데이터-타입)
+
 ## 3.1 변수와 가변성
 <details>
     <summary>자세히 보기</summary>
@@ -2626,6 +2628,108 @@ fn main() {
 2. 중복된 코드를 함수의 본체로 호출하고, 함수의 시그니처 내에 해당 코드의 입력값 및 반환 값을 명시
 3. 두 군데의 코드가 중복되었던 구체적인 지점에 함수 호출을 대신 집어넣도록 한다. 
 
-
 </details>
 
+## 10.1 제네릭 데이터 타입 
+
+<details>
+    <summary>자세히 보기</summary>
+
+- 함수 시그니처나 구조체에서와 같은 방식으로, 우리가 일반적으로 타입을 쓰는 곳에다 제네릭을 이용하는 것은 여러 다른 종류의 구체적인 데이터 타입에 대해 사용할 수 있는 정의를 생성하도록 해준다. 
+- 제네릭을 이용하여 함수, 구조체, 열거형, 그리고 메소드를 정의하는 방법을 살펴본 뒤, 제네릭을 이용한 코드의 성능에 대해 논의해본다. 
+
+### 함수 정의 내에서 제네릭 데이터 타입을 이용하기
+> 함수의 시그니처 내에서 파라미터의 데이터 타입과 반환 값이 올 자리에 제네릭을 사용하는 함수를 정의할 수 있다.
+  이러한 방법은 중복을 야기하지 않을 수 있다.
+
+<code>largest</code> 함수가 있다고 하자. 
+
+```rust
+fn largest_i32(list: &[i32]) -> i32 {
+    let mut largest = list[0];
+
+    for &item in list.iter() {
+        if item > largest {
+            largest = item;
+        }
+    }
+
+    largest
+}
+
+fn largest_char(list: &[char]) -> char {
+    let mut largest = list[0];
+
+    for &item in list.iter() {
+        if item > largest {
+            largest = item;
+        }
+    }
+
+    largest
+}
+
+fn main() {
+    let numbers = vec![34, 50, 25, 100, 65];
+
+    let result = largest_i32(&numbers);
+    println!("The largest number is {}", result);
+
+    let chars = vec!['y', 'm', 'a', 'q'];
+
+    let result = largest_char(&chars);
+    println!("The largest char is {}", result);
+}
+```
+
+- 여기서 함수 <code>largest_i32</code>와 <code>largest_char</code>는 정확히 똑같은 본체를 가지고 있으므로, 만일 우리가 이 두 함수를 하나로 바꿔서 중복을 제거할 수 있다면 좋을 것이다. -> 제네릭 타입 파라미터를 도입해서 그렇게 할 수 있다.
+
+- 우리가 정의하고자 하는 함수의 시그니처 내에 있는 타입들을 파라미터화 하기 위해서, 타입 파라미터를 위한 이름을 만들 필요가 있는데, 이는 값 파라미터들의 이름을 함수에 제공하는 방법과 유사하다. -> 기본적으로 camelCase를 사용해서 이름을 짓는다. 
+
+```rust
+fn largest<T>(list: &[T]) -> T {
+```
+- 함수 <code>largest</code>는 어떤 타입 <code>T</code>을 이용한 제네릭이다. 이것은 <code>list</code>라는 이름을 가진 하나의 파라미터를 가지고 있고, <code>list</code>의 타입은 <code>T</code>타입 값들의 슬라이스이다. <code>largest</code>함수는 동일한 타입 <code>T</code> 값을 반환할 것이다. 
+
+```rust
+fn largest<T>(list: &[T]) -> T {
+    let mut largest = list[0];
+
+    for &item in list.iter() {
+        if item > largest {
+            largest = item;
+        }
+    }
+
+    largest
+}
+
+fn main() {
+    let numbers = vec![34, 50, 25, 100, 65];
+
+    let result = largest(&numbers);
+    println!("The largest number is {}", result);
+
+    let chars = vec!['y', 'm', 'a', 'q'];
+
+    let result = largest(&chars);
+    println!("The largest char is {}", result);
+}
+```
+
+> 근데 이 코드를 지금 컴파일하고자 시도하면, 다음과 같은 에러를 얻게 될 것이다. 
+
+```rust
+error[E0369]: binary operation `>` cannot be applied to type `T`
+  |
+5 |         if item > largest {
+  |            ^^^^
+  |
+note: an implementation of `std::cmp::PartialOrd` might be missing for `T`
+```
+
+- 위 노트는 <code>std::cmp::PartialOrd</code>를 언급하는데, 이는 <code>트레잇(trait)</code>이다. 
+- 이 에러가 말하고 있는 것은 <code>T</code>가 될 수 있는 모든 가능한 타입에 대해서 동작하지 않으리라는 것이다. 함수 본체 내에서 <code>T</code>가 될 수 있는 모든 가능한 타입에 대해서 동작하지 않으리라는 것이다: 함수 본체 내에서 <code>T</code> 타입의 값을 비교하고자 하기 때문에, 어떻게 순서대로 정렬하는지 알고 있는 타입만 사용할 수 있다는 것이다. 
+- 표쥰 라이브러리는 어떤 타입에 대해 비교 연산이 가능하도록 구현할 수 있는 트레잇인 <code>std::cmp::PartialOrd</code>를 정의해 뒀다. 
+
+</details>
