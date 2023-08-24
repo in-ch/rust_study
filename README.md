@@ -2732,4 +2732,105 @@ note: an implementation of `std::cmp::PartialOrd` might be missing for `T`
 - 이 에러가 말하고 있는 것은 <code>T</code>가 될 수 있는 모든 가능한 타입에 대해서 동작하지 않으리라는 것이다. 함수 본체 내에서 <code>T</code>가 될 수 있는 모든 가능한 타입에 대해서 동작하지 않으리라는 것이다: 함수 본체 내에서 <code>T</code> 타입의 값을 비교하고자 하기 때문에, 어떻게 순서대로 정렬하는지 알고 있는 타입만 사용할 수 있다는 것이다. 
 - 표쥰 라이브러리는 어떤 타입에 대해 비교 연산이 가능하도록 구현할 수 있는 트레잇인 <code>std::cmp::PartialOrd</code>를 정의해 뒀다. 
 
+### 구조체 정의 내에서 제네릭 데이터 타입 사용하기
+- 하나 혹은 그 이상의 구조체 필드 내에 제네릭 타입 파라미터를 사용하여 구조체를 정의할 수 있다.
+- 아래 예제는 임의의 타입으로 된 x와 y 좌표값을 가질 수 있는 <code>Point</code>구조체의 정의 및 사용법을 보여주고 있다.
+
+```rust
+struct Point<T> {
+    x: T,
+    y: T,
+}
+
+fn main() {
+    let integer = Point { x: 5, y: 10 };
+    let float = Point { x: 1.0, y: 4.0 };
+}
+```
+> Point의 정의 내에서 단 하나의 제네릭 타입을 사용했기 때문에, Point 구조체는 어떤 타입 T를 이용한 제네릭이고 x와 y가 이게 결국 무엇이 되든 간에 둘 다 동일한 타입을 가지고 있다고 말할 수 있음을 주목해야 한다. 
+  만약에 다른 타입을 갖는 인스턴스를 만들고자 한다면 컴파일 되지 않을 것이다. ex) <code>let wont_work = Point { x: 5, y: 4.0 };</code>
+  <code>x</code>에 정수 5를 대입할 때, 컴파일러는 이 <code>Point</code>의 인스턴스에 대해 제네릭 타입 <code>T</code>가 정수일 것이고 알게 된다. 
+  그다음 <code>y</code>에 대해 4.0을 지정했는데, 이 y는 x와 동일한 타입을 갖도록 정의되었으므로, 타입 불일치 에러를 얻게 된다.
+
+- 만일 x와 y가 서로 다른 타입을 가지지만 해당 타입들이 여전히 제네릭인 Point 구조체를 정의하길 원한다면, 여러 개의 제네릭 타입 파라미터를 이용할 수 있다. 
+
+```rust
+struct Point<T, U> {
+    x: T,
+    y: U,
+}
+
+fn main() {
+    let both_integer = Point { x: 5, y: 10 };
+    let both_float = Point { x: 1.0, y: 4.0 };
+    let integer_and_float = Point { x: 5, y: 4.0 };
+}
+```
+
+### 열거형 정의 내에서 제네릭 데이터 타입 사용하기 
+- 열거형은 또한 여러 개의 제네릭 타입을 이용할 수 있다.
+- 단지 들고 있는 값의 타입만 다른 여러 개의 구조체나 열거형이 있는 상황을 인지했다면, 우리가 함수 정의에서 제네릭 타입을 대신 도입하여 사용했던 것과 똑같은 절차를 통해 그러한 중복을 제거할 수 있다. 
+
+ex)
+```rust
+enum Result<T, E> {
+    Ok(T),
+    Err(E),
+}
+```
+
+### 메소드 정의 내에서 제네릭 데이터 타입 사용하기 
+- 정의부에 제네릭 타입을 갖는 구조체와 열거형 상의 메소드를 구현할 수도 있다.
+- 먼저 <code>Point<T></code>구조체를 보여주고 필드 x의 값에 대한 참조자를 반환하는 x라는 이름의 메소드를 <code>Point<T></code> 상에 정의하는 예제이다. 
+
+ex)  T 타입의 x 필드에 대한 참조자를 반환하는 Point<T> 구조체 상에 x라는 이름의 메소드 정의
+```rust
+struct Point<T> {
+    x: T,
+    y: T,
+}
+
+impl<T> Point<T> {
+    fn x(&self) -> &T {
+        &self.x
+    }
+}
+
+fn main() {
+    let p = Point { x: 5, y: 10 };
+
+    println!("p.x = {}", p.x());
+}
+```
+
+ex) 구조체 정의에서와는 다른 제네릭 타입을 사용하는 메소드
+```rust
+struct Point<T, U> {
+    x: T,
+    y: U,
+}
+
+impl<T, U> Point<T, U> {
+    fn mixup<V, W>(self, other: Point<V, W>) -> Point<T, W> {
+        Point {
+            x: self.x,
+            y: other.y,
+        }
+    }
+}
+
+fn main() {
+    let p1 = Point { x: 5, y: 10.4 };
+    let p2 = Point { x: "Hello", y: 'c'};
+
+    let p3 = p1.mixup(p2);
+
+    println!("p3.x = {}, p3.y = {}", p3.x, p3.y);
+}
+```
+-> 너무 어렵다...
+
+### 제네릭을 이용한 코드의 성능 
+-> 어떠한 비용도 들지 않는다.. !! 
+
 </details>
