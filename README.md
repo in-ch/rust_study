@@ -2860,6 +2860,95 @@ pub trait Summarizable {
 
 - 트레잇은 한 줄 당 하나의 메소드 시그니처와 각 줄의 끝에 세미콜론을 갖도록 함으로써, 본체 내에 여러 개의 메소드를 가질 수 있다. 
 
+### 특정 타입에 대한 트레잇 구현하기 
+
+- <code>Summarizable</code> 트레잇을 정의하였으니, 이제 미디어 종합기 내에서 이 동작을 갖길 원했던 타입들 상에 이 트레잇을 구현할 수 있다. 
+
+```rust
+pub struct NewsArticle {
+    pub headline: String,
+    pub location: String,
+    pub author: String,
+    pub content: String,
+}
+
+impl Summarizable for NewsArticle {
+    fn summary(&self) -> String {
+        format!("{}, by {} ({})", self.headline, self.author, self.location)
+    }
+}
+
+pub struct Tweet {
+    pub username: String,
+    pub content: String,
+    pub reply: bool,
+    pub retweet: bool,
+}
+
+impl Summarizable for Tweet {
+    fn summary(&self) -> String {
+        format!("{}: {}", self.username, self.content)
+    }
+}
+```
+- 트레잇을 한번 구현했다면, 트레잇의 일부가 아닌 메소드들을 호출했던 것과 동일한 방식으로 <code>NewsArticle</code>과 <code>Tweet</code>의 인스턴스 상에서 해당 메소드들을 호출할 수 있다.
+
+```rust
+let tweet = Tweet {
+    username: String::from("horse_ebooks"),
+    content: String::from("of course, as you probably already know, people"),
+    reply: false,
+    retweet: false,
+};
+
+println!("1 new tweet: {}", tweet.summary());
+```
+
+>  <code>Summarizable</code> 트레잇과 <code>NewsArticle</code> 및 <code>Tweet</code> 타입을 동일한 <code>lib.rs</code> 내에 정의했기 때문에, 이들이 모두 동일한 스코프 내에 있다는 점을 주목해야 한다. 만일 이 <code>lib.rs</code>가 <code>aggregator</code>라고 불리는 크레이트에 대한 것이고 누군가가 우리의 크레이트 기능에 더해 그들의 <code>WeatherForecast</code> 구조체에 대하여 <code>Summarizable</code>을 구현하기를 원한다면, 이를 구현하기 전에 먼저 <code>Summarizable</code> 트레잇을 그들의 스코프로 가져올 필요가 있다.
+
+- <code>aggregator</code> 크레이트로부터 다른 크레이트 내의 스코프로 <code>Summarizable</code> 트레잇을 가져오기
+```rust
+extern crate aggregator;
+
+use aggregator::Summarizable;
+
+struct WeatherForecast {
+    high_temp: f64,
+    low_temp: f64,
+    chance_of_precipitation: f64,
+}
+
+impl Summarizable for WeatherForecast {
+    fn summary(&self) -> String {
+        format!("The high will be {}, and the low will be {}. The chance of
+        precipitation is {}%.", self.high_temp, self.low_temp,
+        self.chance_of_precipitation)
+    }
+}
+```
+
+- 트레잇 구현과 함께 기억할 한 가지 제한 사항 
+    1. 트레잇 혹은 타입이 우리의 크레이트 내의 것일 경우에만 해당 타입에서의 트레잇을 정의할 수 있다. 바꿔 말하면, 외부의 타입에 대한 외부 트레잇을 구현하는 것은 허용되지 않는다.
+    예를 들어, Vec에 대한 Display 트레잇은 구현이 불가능ㅇ한데, Display와 Vec 모두 표준 라이브러리 내에 정의되어 있기 떄문이다. 
+    2. 우리의 aggregator 크레이트 기능의 일부로서 Tweet과 같은 커스텀 타입에 대한 Display와 같은 표준 라이브러리 트레잇을 구현하는 것은 허용된다. 또한 우리의 aggregator 크레이트 내에서 Vec에 대한 Summarizable을 구현하는 것도 가능한데, 이는 우리의 크레이트 내에 Summarizable이 정의되어 있기 떄무니다. 이러한 제한은 <code>고아 규칙</code>이라고 불리는데, 부모 타입이 존재하지 않는 것을 고아 규칙이라고 한다. 이 규칙이 없다면, 두 크레이트는 동일한 타입에 대해 동일한 트레잇을 구현할 수 있게 되고, 이 두 구현체는 충돌을 일으킬 것이다. 
+
+### 기본 구현 
+- 종종 모든 타입 상에서의 모든 구현체가 커스텀 동작을 정의하도록 하는 대신, 트레잇의 몇몇 혹은 모든 메소드들에 대한 기본 동작을 갖추는 것이 유용할 수 있다. 
+- 특정한 타입에 대한 트레잇을 구현할 때, 각 메소드의 기본 동작을 유지하거나 오버라이드하도록 선택할 수 있다. 
+
+```rust
+pub trait Summarizable {
+    fn summary(&self) -> String {
+        String::from("(Read more...)")
+    }
+}
+```
+
+- 만일 커스텀 구현을 정의하는 대신 <code>NewsArticle</code>의 인스턴스를 정리하기 위해 이 기본 구현을 사용하고자 한다면, 빈 <code>impl</code> 블록을 명시하면 된다. 
+```rust
+impl Summarizable for NewsArticle {}
+```
+
 
 
 </summary>
