@@ -2945,10 +2945,59 @@ pub trait Summarizable {
 ```
 
 - 만일 커스텀 구현을 정의하는 대신 <code>NewsArticle</code>의 인스턴스를 정리하기 위해 이 기본 구현을 사용하고자 한다면, 빈 <code>impl</code> 블록을 명시하면 된다. 
+- 비록 <code>NewsArticle</code>에 대한 <code>summary</code> 메소드를 직접 정의하는 선택을 더 이상 하지 않았더라도, <code>summary</code> 메소드가 기본 구현을 갖고 있고 <code>NewsArticle</code>이 <code>Summarizable</code> 트레잇을 구현하도록 명시했기 때문에, 우리는 여전히 <code>newsArticle</code>의 인스턴스 상에서 <code>summary</code> 메소드를 호출할 수 있다.
+
 ```rust
 impl Summarizable for NewsArticle {}
-```
 
+let article = NewsArticle {
+    headline: String::from("Penguins win the Stanley Cup Championship!"),
+    location: String::from("Pittsburgh, PA, USA"),
+    author: String::from("Iceburgh"),
+    content: String::from("The Pittsburgh Penguins once again are the best
+    hockey team in the NHL."),
+};
+
+println!("New article available! {}", article.summary());
+```
+> 위의 코드는 New article available! (Read more...)를 출력한다.
+
+- <code>Summarizable</code> 트레잇이 <code>summary</code>에 대한 기본 구현을 갖도록 변경하는 것은 <code>Tweet</code>이나 <code>WeatherForecast</code> 상에서의 <code>Summarizable</code>구현에 대한 어떤 것도 바꾸도록 요구하지 않는다: 기본 구현을 오버라이딩 하기 위한 문법은 기본 구현이 없는 트레잇 메소드를 구현하기 위한 문법과 정확히 동일하다. 
+
+- 기본 구현은 동일한 트레잇 내의 다른 메소드들을 호출하는 것이 허용되어 있는데, 심지어 그 다른 메소드들이 기본 구현을 갖고 있지 않아도 된다. 이러한 방식으로, 트레잇은 수많은 유용한 기능을 제공하면서도 다른 구현자들이 해당 트레잇의 작은 일부분만 구현하도록 요규할 수 있다. -> 우리는 <code>Summarizable</code>트레잇이 구현이 필요한 <code>author_summary</code>메소드도 갖도록 하여, <code>summary</code>메소드가 <code>author_summary</code> 메소드를 호출하는 기본 구현을 갖는 형태를 선택할 수도 있다. 
+
+```rust
+pub trait Summarizable {
+    fn author_summary(&self) -> String;
+
+    fn summary(&self) -> String {
+        format!("(Read more from {}...)", self.author_summary())
+    }
+}
+```
+- 이 버전의 <code>Summarizable</code>을 사용하기 위해서는, 어떤 타입에 대한 이 트레잇을 구현할 때, <code>author_summary</code>만 정의하면 된다 
+```rust
+impl Summarizable for Tweet {
+    fn author_summary(&self) -> String {
+        format!("@{}", self.username)
+    }
+}
+```
+- 일단 <code>author_summary</code>를 정의하면, <code>Tweet</code> 구조체의 인스턴스 상에서 <code>summary</code>를 호출할 수 있으며, <code>summary</code>의 기본 구현이 우리가 제공한 <code>author_summary</code>의 정의부를 호출할 것이다. 
+```rust
+let tweet = Tweet {
+    username: String::from("horse_ebooks"),
+    content: String::from("of course, as you probably already know, people"),
+    reply: false,
+    retweet: false,
+};
+
+println!("1 new tweet: {}", tweet.summary());
+```
+- 위의 코드는 <code>1 new tweet: (Read more from @horse_ebooks..)</code>를 출력할 것이다. 
+
+> 오버라이딩된 구현으로부터 기본 구현을 호출하는 것은 불가능하다는 점을 기억해야 한다. 
 
 
 </summary>
+
