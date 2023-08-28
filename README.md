@@ -2998,6 +2998,36 @@ println!("1 new tweet: {}", tweet.summary());
 
 > 오버라이딩된 구현으로부터 기본 구현을 호출하는 것은 불가능하다는 점을 기억해야 한다. 
 
+### 트레잇 바운드
+
+- 제네릭 타입에 제약을 가하여 이 제네릭 타입이 어떠한 타입이든 되기 보다는, 이 제네릭 타입이 특정한 트레잇을 구현하여 이 타입들이 가지고 있는 동작을 갖고 있도록 타입들로 제한함을 컴파일러가 확신하도록 할 수 있다. 
+- 아래는 <code>NewsArticle</code>과 <code>Tweet</code> 타입에 대하여 <code>Summarizable</code> 트레잇을 구현하는 예제 이다. 우리는 파라미터 <code>item</code> 상에서 <code>summary</code> 메소드를 호출하기 위해서는, <code>T</code>에 대한 트레잇 바운드를 사용하여 <code>item</code>이 <code>Summarizable</code> 트레잇을 반드시 구현한 타입어야 함을 특정할 수 있다. 
+
+```rust
+pub fn notify<T: Summarizable>(item: T) {
+    println!("Breaking news! {}", item.summary());
+}
+```
+- 트레잇 바운드는 제네릭 타입 파라미터의 선언부와 함께, 꺾쇠 괄호 내에 콜론 뒤에 온다. <code>T</code>상에서의 트레잇 바운드이므로, 우리는 <code>notify</code>를 호출하여 <code>NewsArticle</code>이나 <code>Tweet</code>의 어떠한 인스턴스라도 넘길 수 있다. 
+- 우리의 <code>aggregator</code> 크레이트를 사용하는 외부 코드도 우리의 <code>notify</code> 함수를 호출하여 <code>WeatherForecast</code>의 인스턴스를 넘길 수 있는데, 이는 <code>WeatherForecast</code> 또한 <code>Summarizable</code>을 구현하였기 때문이다.
+- <code>String</code>이나 <code>i32</code> 같은 어떠한 다른 타입을 가지고 notify를 호출하는 코드는 컴파일되지 않을 것인데, 그 이유는 그러한 타입들이 <code>Summarizable</code>을 구현하지 않았기 때문이다. 
+
+- <code>+</code>를 이용하면 하나의 제네릭 타입에 대해 여러 개의 트레잇 바운드를 특정할 수 있다. 만일 함수 내에서 타입 <code>T</code>에 대해 <code>summary</code> 메소드 뿐만 아니라 형식화된 출력을 사용하길 원한다면, <code>트레잇 바운드 T: Summarizable + Display</code>를 이용할 수 있다. 이는 <code>T</code>가 <code>Summarizable</code>과 <code>Display</code> 둘다 구현한 어떤 타입이어야 함을 의미한다.
+
+- 여러 개의 제네릭 타입 파라미터를 가진 함수들에 대하여, 각 제네릭은 고유의 트레잇 바운드를 가진다. 함수 이름과 파라미터 리스트 사이의 꺾쇠 괄호 내에 많은 수의 트레잇 바운드 정보를 특정하는 것은 코드를 읽기 힘들게 만들 수 있으므로, 함수 시그니처 뒤에 <code>where</code> 절 뒤로 트레잇 바운드 옮겨서 특정하도록 해주는 대안 문법이 있다. 따라서 아래와 같은 코드 대신 
+```rust
+fn some_function<T: Display + Clone, U: Clone + Debug>(t: T, u: U) -> i32 {
+```
+<code>where</code> 절을 이용하여 아래와 같이 작성할 수 있다.
+
+```rust
+fn some_function<T, U>(t: T, u: U) -> i32
+    where T: Display + Clone,
+          U: Clone + Debug
+{
+```
+함수 이름, 파라미터 리스트, 그리고 반환 타입이 서로 가까이 있도록 하여, 이쪽이 덜 어수선하고 이 함수의 시그니처를 많은 트레잇 바운드를 가지고 있지 않은 함수처럼 보이도록 만들어 준다. 
+
 
 </summary>
 
