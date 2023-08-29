@@ -48,6 +48,8 @@ https://rinthel.github.io/rust-lang-book-ko/
 
 [10.1 제네릭 타입](#101-제네릭-데이터-타입)
 
+[10.2 트레잇: 공유 동작을 정의하기](#102-트레잇-공유-동작을-정의하기)
+
 ## 3.1 변수와 가변성
 <details>
     <summary>자세히 보기</summary>
@@ -3027,6 +3029,69 @@ fn some_function<T, U>(t: T, u: U) -> i32
 {
 ```
 함수 이름, 파라미터 리스트, 그리고 반환 타입이 서로 가까이 있도록 하여, 이쪽이 덜 어수선하고 이 함수의 시그니처를 많은 트레잇 바운드를 가지고 있지 않은 함수처럼 보이도록 만들어 준다. 
+
+### 트레잇 바운드를 사용하여 largest 함수 고치기 
+- 따라서 우리는 어떤 제네릭 상에서 어떤 트레잇으로 정의된 동작을 이용하기를 원하는 어떤 경우이든, 해당 제네릭 타입 파라미터의 타입내에 트레잇 바운드를 명시할 필요가 있다.
+- <code>largest</code>함수를 고쳐보자. 
+
+```rust
+fn largest<T>(list: &[T]) -> T {
+    let mut largest = list[0];
+
+    for &item in list.iter() {
+        if item > largest {
+            largest = item;
+        }
+    }
+
+    largest
+}
+
+fn main() {
+    let numbers = vec![34, 50, 25, 100, 65];
+
+    let result = largest(&numbers);
+    println!("The largest number is {}", result);
+
+    let chars = vec!['y', 'm', 'a', 'q'];
+
+    let result = largest(&chars);
+    println!("The largest char is {}", result);
+}
+```
+- 고치면 다음과 같이 된다. 
+
+```rust
+use std::cmp::PartialOrd;
+
+fn largest<T: PartialOrd + Copy>(list: &[T]) -> T {
+    let mut largest = list[0];
+
+    for &item in list.iter() {
+        if item > largest {
+            largest = item;
+        }
+    }
+
+    largest
+}
+
+fn main() {
+    let numbers = vec![34, 50, 25, 100, 65];
+
+    let result = largest(&numbers);
+    println!("The largest number is {}", result);
+
+    let chars = vec!['y', 'm', 'a', 'q'];
+
+    let result = largest(&chars);
+    println!("The largest char is {}", result);
+}
+```
+
+> 만일 우리의 <code>largest</code> 함수를 <code>Copy</code> 트레잇을 구현한 타입에 대한 것으로만 제한하길 원치 않는다면, <code>T</code>가 <code>Copy</code> 대신 <code>Clone</code> 트레잇 바운드를 갖도록 명시하여 <code>largest</code> 함수가 소유권을 갖길 원하는 경우 슬라이스의 각 값이 복제되도록 할 수도 있다. 그러나 <code>clone</code> 함수를 이용한다는 것은 더 많은 힙 할당을 할 수 있다는 것이고, 힙 할당은 많은 양의 데이터에 대해서 동작할 경우 느릴 수 있다. 
+
+> <code>largest</code>를 구현하는 또다는 방법은 함수가 슬라이스 내의 <code>T</code> 값에 대한 참조자를 반환하도록 하는 것이다. 만약 반환 타입을 <code>T</code> 대신 <code>&T</code>로 바꾸고 함수의 본체가 참조자를 반환하도록 바꾼다면, <code>Clone</code>이나 <code>Copy</code> 트레잇 바운드도 필요치 않으며 어떠한 힙 할당도 하지 않게 될 것이다.
 
 
 </summary>
