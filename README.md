@@ -1768,7 +1768,7 @@ fn main() {
 - 스트링(string)은 문자의 모음이다. <code>String</code>타입은 이전에 다루었지만, 이번 장에서는 더 깊이 있게 이야기 해본다.
 - 해쉬맵(hash map)은 어떤 값을 특정한 키와 연관지어 주도록 해줍니다. 이는 맵(map)이라 일컫는 좀더 일반적인 데이터 구조의 특정한 구현 형태이다. 
 
-- 더 [자세한 내용](https://doc.rust-lang.org/std/collections/index.html)
+- [더 자세한 내용](https://doc.rust-lang.org/std/collections/index.html)
 
 ## 8.1 벡터
 
